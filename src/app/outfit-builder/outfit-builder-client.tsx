@@ -22,6 +22,12 @@ export default function OutfitBuilderClient({ tops, bottoms }: OutfitBuilderClie
   const handleAddToCart = async () => {
     if (!selectedTop || !selectedBottom) return
     setIsLoading(true)
+    
+    // Dispatch custom event to wobble cart in navbar
+    window.dispatchEvent(new CustomEvent('cart-updated', { 
+      detail: { quantity: 2 } // 1 top + 1 bottom
+    }))
+
     const formData = new FormData()
     formData.append('topId', selectedTop.id)
     formData.append('bottomId', selectedBottom.id)

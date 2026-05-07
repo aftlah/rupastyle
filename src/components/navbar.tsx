@@ -2,10 +2,17 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { logout } from "@/lib/actions/auth"
 import { Button } from "./ui/button"
+import CartButton from "./navbar/cart-button"
+import { getCartCount } from "@/lib/cart"
 
 export default async function Navbar() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  
+  let cartCount = 0
+  if (user) {
+    cartCount = await getCartCount(user.id)
+  }
 
   return (
     <nav className="border-b-4 border-foreground bg-white sticky top-0 z-50">
@@ -30,9 +37,9 @@ export default async function Navbar() {
               <Link href="/outfit-builder" className="text-xl font-black text-foreground hover:text-primary transition-colors border-b-4 border-transparent hover:border-primary py-1 uppercase">
                 Outfit
               </Link>
-              <Link href="/cart" className="text-xl font-black text-foreground hover:text-primary transition-colors border-b-4 border-transparent hover:border-primary py-1 uppercase">
-                Cart
-              </Link>
+              
+              {/* INTERACTIVE CART BUTTON */}
+              {user && <CartButton initialCount={cartCount} />}
             </div>
             
             <div className="h-10 w-1 bg-foreground/20 hidden md:block"></div>
@@ -41,7 +48,7 @@ export default async function Navbar() {
             <div className="flex items-center gap-4">
               {user ? (
                 <div className="flex items-center gap-4">
-                  <span className="hidden lg:inline-block text-sm font-black bg-primary/10 text-primary px-4 py-2 border-2 border-primary/20 rounded-md truncate max-w-[200px]">
+                  <span className="hidden lg:inline-block text-sm font-black bg-primary/10 text-primary px-4 py-2 border-2 border-primary/20 rounded-md truncate max-w-[150px]">
                     {user.email?.split('@')[0]}
                   </span>
                   <form action={logout}>

@@ -60,6 +60,22 @@ export async function getCartWithItems(userId: string): Promise<CartWithItems | 
   return cart as CartWithItems
 }
 
+export async function getCartCount(userId: string): Promise<number> {
+  const supabase = await createClient()
+  
+  const { data: cart, error } = await supabase
+    .from('carts')
+    .select(`
+      items:cart_items(quantity)
+    `)
+    .eq('user_id', userId)
+    .single()
+
+  if (error || !cart) return 0
+  
+  return (cart.items as { quantity: number }[]).reduce((sum, item) => sum + item.quantity, 0)
+}
+
 export async function addToCart(
   userId: string,
   { productId, size, color, quantity, bundleId }: {

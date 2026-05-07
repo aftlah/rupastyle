@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { addToCartAction } from "@/lib/actions/cart"
 import type { Product } from "@/types"
+import { Plus, Minus, CheckCircle2 } from "lucide-react"
 
 interface AddToCartFormProps {
   product: Product
@@ -15,27 +16,44 @@ export default function AddToCartForm({ product }: AddToCartFormProps) {
   const [selectedSize, setSelectedSize] = useState<string | null>(sizes[0] || null)
   const [selectedColor, setSelectedColor] = useState<string | null>(colors[0] || null)
   const [quantity, setQuantity] = useState(1)
+  const [isAdded, setIsAdded] = useState(false)
+
+  const handleSubmit = async (formData: FormData) => {
+    setIsAdded(true)
+    
+    // Dispatch custom event to wobble cart in navbar
+    window.dispatchEvent(new CustomEvent('cart-updated', { 
+      detail: { quantity: quantity } 
+    }))
+    
+    await addToCartAction(formData)
+    setTimeout(() => setIsAdded(false), 2000)
+  }
 
   return (
-    <form action={addToCartAction} className="space-y-6">
+    <form action={handleSubmit} className="space-y-8">
       <input type="hidden" name="productId" value={product.id} />
       <input type="hidden" name="size" value={selectedSize || ""} />
       <input type="hidden" name="color" value={selectedColor || ""} />
       <input type="hidden" name="quantity" value={quantity} />
 
+      {/* Size Selection */}
       {sizes.length > 0 && (
-        <div>
-          <h3 className="font-semibold mb-3">Ukuran</h3>
-          <div className="flex flex-wrap gap-2">
+        <div className="space-y-4">
+          <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+            Pilih Ukuran
+            <div className="h-[2px] flex-1 bg-foreground/10"></div>
+          </h3>
+          <div className="flex flex-wrap gap-3">
             {sizes.map((size) => (
               <button
                 key={size}
                 type="button"
                 onClick={() => setSelectedSize(size)}
-                className={`px-4 py-2 border rounded-md transition-colors ${
+                className={`min-w-[50px] h-12 px-4 border-4 font-black transition-all ${
                   selectedSize === size
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-input hover:border-primary'
+                    ? 'border-primary bg-primary text-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] -translate-x-1 -translate-y-1'
+                    : 'border-foreground bg-white hover:bg-gray-50'
                 }`}
               >
                 {size}
@@ -45,19 +63,23 @@ export default function AddToCartForm({ product }: AddToCartFormProps) {
         </div>
       )}
 
+      {/* Color Selection */}
       {colors.length > 0 && (
-        <div>
-          <h3 className="font-semibold mb-3">Warna</h3>
-          <div className="flex flex-wrap gap-2">
+        <div className="space-y-4">
+          <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+            Pilih Warna
+            <div className="h-[2px] flex-1 bg-foreground/10"></div>
+          </h3>
+          <div className="flex flex-wrap gap-3">
             {colors.map((color) => (
               <button
                 key={color}
                 type="button"
                 onClick={() => setSelectedColor(color)}
-                className={`px-4 py-2 border rounded-md transition-colors ${
+                className={`h-12 px-6 border-4 font-black transition-all uppercase text-sm ${
                   selectedColor === color
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-input hover:border-primary'
+                    ? 'border-primary bg-primary text-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] -translate-x-1 -translate-y-1'
+                    : 'border-foreground bg-white hover:bg-gray-50'
                 }`}
               >
                 {color}
@@ -67,34 +89,64 @@ export default function AddToCartForm({ product }: AddToCartFormProps) {
         </div>
       )}
 
-      <div>
-        <h3 className="font-semibold mb-3">Jumlah</h3>
-        <div className="flex items-center gap-2">
+      {/* Quantity and CTA */}
+      <div className="pt-4 flex flex-col sm:flex-row gap-4 items-center">
+        {/* Quantity Controller */}
+        <div className="flex items-center border-4 border-foreground bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] h-16 w-full sm:w-auto">
           <Button
             type="button"
             size="icon"
-            variant="outline"
+            variant="ghost"
+            className="h-full w-14 rounded-none hover:bg-primary/10 transition-colors border-r-4 border-foreground"
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
           >
-            -
+            <Minus className="w-5 h-5" />
           </Button>
-          <span className="w-12 text-center font-medium">{quantity}</span>
+          
+          <span className="w-16 text-center font-black text-2xl">{quantity}</span>
+          
           <Button
             type="button"
             size="icon"
-            variant="outline"
+            variant="ghost"
+            className="h-full w-14 rounded-none hover:bg-primary/10 transition-colors border-l-4 border-foreground"
             onClick={() => setQuantity(quantity + 1)}
           >
-            +
+            <Plus className="w-5 h-5" />
+          </Button>
+        </div>
+
+        {/* Add to Cart Button */}
+        <div className="flex-1 w-full">
+          <Button 
+            type="submit" 
+            className={`w-full h-16 border-4 border-foreground font-black uppercase text-xl transition-all relative overflow-hidden group shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] rounded-none ${
+              isAdded ? 'bg-green-500 text-white' : 'bg-primary text-white'
+            }`}
+            disabled={isAdded}
+          >
+            <span className={`flex items-center justify-center gap-3 transition-all duration-300 ${isAdded ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}>
+              Add to Cart
+            </span>
+            
+            {/* Animation Overlay */}
+            <div className={`absolute inset-0 flex items-center justify-center gap-3 transition-all duration-500 ${isAdded ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}>
+              <CheckCircle2 className="w-6 h-6 animate-bounce" />
+              <span>Berhasil!</span>
+            </div>
           </Button>
         </div>
       </div>
-
-      <div className="pt-2">
-        <Button type="submit" className="w-full" size="lg">
-          Add to Cart
-        </Button>
-      </div>
+      
+      {/* Toast Notification (Simple CSS Version) */}
+      {isAdded && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[60] animate-in fade-in slide-in-from-bottom-10 duration-500">
+          <div className="bg-foreground text-white px-8 py-4 border-4 border-primary shadow-[8px_8px_0_0_rgba(255,255,255,0.2)] font-black uppercase tracking-widest flex items-center gap-4">
+            <span className="text-2xl">⚡</span>
+            Produk berhasil masuk keranjang!
+          </div>
+        </div>
+      )}
     </form>
   )
 }
