@@ -1,5 +1,5 @@
 import { getProducts } from '@/lib/products'
-import OutfitBuilderClient from '@/app/outfit-builder/outfit-builder-client'
+import OutfitBuilderClient from './outfit-builder-client'
 
 export const metadata = {
   title: 'Outfit Builder | RupaStyle',
