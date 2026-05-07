@@ -2,65 +2,65 @@
 
 @layer base {
   :root {
-    --background: 40 33% 98%; /* Soft cream */
-    --foreground: 240 10% 10%; /* Soft black */
+    --background: hsl(40 33% 98%); /* Soft cream */
+    --foreground: hsl(240 10% 10%); /* Soft black */
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 10%;
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(240 10% 10%);
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 10%;
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(240 10% 10%);
 
-    --primary: 270 50% 60%; /* Soft elegant purple */
-    --primary-foreground: 0 0% 100%;
+    --primary: hsl(270 50% 60%); /* Soft elegant purple */
+    --primary-foreground: hsl(0 0% 100%);
 
-    --secondary: 40 20% 90%;
-    --secondary-foreground: 240 10% 10%;
+    --secondary: hsl(40 20% 90%);
+    --secondary-foreground: hsl(240 10% 10%);
 
-    --muted: 40 20% 90%;
-    --muted-foreground: 240 5% 40%;
+    --muted: hsl(40 20% 90%);
+    --muted-foreground: hsl(240 5% 40%);
 
-    --accent: 330 60% 65%; /* Soft pink accent */
-    --accent-foreground: 0 0% 100%;
+    --accent: hsl(330 60% 65%); /* Soft pink accent */
+    --accent-foreground: hsl(0 0% 100%);
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: hsl(0 84.2% 60.2%);
+    --destructive-foreground: hsl(210 40% 98%);
 
-    --border: 240 10% 10%;
-    --input: 240 10% 10%;
-    --ring: 270 50% 60%;
+    --border: hsl(240 10% 10%);
+    --input: hsl(240 10% 10%);
+    --ring: hsl(270 50% 60%);
 
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 100%;
+    --background: hsl(0 0% 5%);
+    --foreground: hsl(0 0% 100%);
 
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 100%;
+    --card: hsl(0 0% 10%);
+    --card-foreground: hsl(0 0% 100%);
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 100%;
+    --popover: hsl(0 0% 10%);
+    --popover-foreground: hsl(0 0% 100%);
 
-    --primary: 320 80% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary: hsl(320 80% 60%);
+    --primary-foreground: hsl(0 0% 100%);
 
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: hsl(0 0% 15%);
+    --secondary-foreground: hsl(0 0% 100%);
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
+    --muted: hsl(0 0% 15%);
+    --muted-foreground: hsl(0 0% 65%);
 
-    --accent: 320 80% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: hsl(320 80% 60%);
+    --accent-foreground: hsl(0 0% 100%);
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: hsl(0 62.8% 30.6%);
+    --destructive-foreground: hsl(0 0% 100%);
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 320 80% 60%;
+    --border: hsl(0 0% 20%);
+    --input: hsl(0 0% 20%);
+    --ring: hsl(320 80% 60%);
   }
 }
 
