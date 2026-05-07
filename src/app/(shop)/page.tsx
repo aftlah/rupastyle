@@ -96,7 +96,7 @@ export default async function Home() {
             </h2>
             <p className="font-medium text-muted-foreground mt-2 max-w-sm">Elevating your everyday style with modern and comfortable fashion.</p>
           </div>
-          <p className="font-bold text-muted-foreground">© 2026 RupaStyle. Built with Next.js & Supabase.</p>
+          <p className="font-bold text-muted-foreground">© 2026 RupaStyle.</p>
         </div>
       </footer>
     </div>

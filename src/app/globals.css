@@ -114,9 +114,30 @@
     box-shadow: 6px 6px 0px 0px rgba(0,0,0,1);
     transform: translate(-2px, -2px);
   }
-  .neo-shadow-hover:active {
+  .neo-shadow {
+    box-shadow: 5px 5px 0px 0px rgba(0,0,0,1);
+  }
+  .neo-shadow-lg {
+    box-shadow: 10px 10px 0px 0px rgba(0,0,0,1);
+  }
+  .neo-border {
+    border: 4px solid #000000;
+  }
+  .neo-btn {
+    border: 4px solid #000000;
+    box-shadow: 5px 5px 0px 0px rgba(0,0,0,1);
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+  .neo-btn:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px 0px rgba(0,0,0,1);
+  }
+  .neo-btn:active {
+    transform: translate(5px, 5px);
     box-shadow: 0px 0px 0px 0px rgba(0,0,0,1);
-    transform: translate(4px, 4px);
   }
   
   @keyframes cart-wobble {
