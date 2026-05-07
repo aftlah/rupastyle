@@ -1,38 +1,42 @@
 import { getProducts } from '@/lib/products'
-import OutfitBuilderClient from './outfit-builder-client'
+import OutfitBuilderClient from '@/app/outfit-builder/outfit-builder-client'
 
 export const metadata = {
-  title: 'Outfit Builder | Rupastyle',
+  title: 'Outfit Builder | RupaStyle',
   description: 'Mix and match your perfect outfit',
 }
 
 export default async function OutfitBuilderPage() {
   const products = await getProducts()
   
-  // We filter on client to allow dynamic updates, but we can do a rough filter here
-  // Assuming categories might have names like 'atasan', 'tops', 'bawahan', 'bottoms'
+  // Filter products for Tops and Bottoms
   const tops = products.filter(p => 
-    p.category?.slug?.toLowerCase().includes('atasan') || 
-    p.category?.name?.toLowerCase().includes('atasan') ||
-    p.category?.name?.toLowerCase().includes('shirt')
+    p.category?.slug === 'atasan' || 
+    p.category?.name?.toLowerCase().includes('atasan')
   )
   
   const bottoms = products.filter(p => 
-    p.category?.slug?.toLowerCase().includes('bawahan') || 
-    p.category?.name?.toLowerCase().includes('bawahan') ||
-    p.category?.name?.toLowerCase().includes('pants')
+    p.category?.slug === 'bawahan' || 
+    p.category?.name?.toLowerCase().includes('bawahan')
   )
 
   return (
-    <div className="container mx-auto py-10 px-4">
-      <h1 className="text-4xl font-black uppercase tracking-tight mb-2 border-b-4 border-black pb-4">
-        Outfit Builder
-      </h1>
-      <p className="text-muted-foreground mb-8 text-lg">
-        Pilih 1 atasan dan 1 bawahan untuk membuat kombinasi outfit terbaikmu.
-      </p>
-      
-      <OutfitBuilderClient tops={tops} bottoms={bottoms} />
+    <div className="bg-background min-h-screen">
+      <div className="max-w-7xl mx-auto py-16 px-4">
+        <header className="mb-16 text-center max-w-3xl mx-auto">
+          <div className="inline-block border-2 border-foreground bg-white px-6 py-2 mb-6 transform rotate-1 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+            <span className="text-sm font-bold uppercase tracking-widest text-primary">Interactive Tool</span>
+          </div>
+          <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tight text-foreground mb-4">
+            Outfit <span className="text-primary">Builder</span>
+          </h1>
+          <p className="text-muted-foreground text-xl font-medium">
+            Gabungkan atasan dan bawahan favorit lo untuk melihat bagaimana mereka terlihat saat dipakai bersamaan.
+          </p>
+        </header>
+        
+        <OutfitBuilderClient tops={tops} bottoms={bottoms} />
+      </div>
     </div>
   )
 }

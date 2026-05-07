@@ -16,7 +16,7 @@ export default async function RegisterPage({
       <div className="w-full max-w-md border-4 border-foreground bg-white p-8 md:p-12 shadow-[12px_12px_0_0_rgba(0,0,0,1)] rounded-sm">
         <div className="text-center mb-10">
           <h1 className="text-4xl font-black uppercase tracking-tighter mb-2">Daftar</h1>
-          <p className="text-muted-foreground font-bold italic">Buat akun RupaStyle baru Anda</p>
+          <p className="text-muted-foreground font-bold italic">B uat akun RupaStyle baru Anda</p>
         </div>
 
         {error && (

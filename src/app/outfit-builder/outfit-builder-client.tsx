@@ -35,107 +35,159 @@ export default function OutfitBuilderClient({ tops, bottoms }: OutfitBuilderClie
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-      {/* Preview Section */}
-      <div className="border-4 border-black p-6 bg-pink-100 neo-shadow flex flex-col items-center justify-center space-y-6">
-        <h2 className="text-2xl font-bold uppercase tracking-tight">Preview</h2>
-        
-        <div className="w-64 h-64 border-4 border-black bg-white relative neo-shadow flex items-center justify-center overflow-hidden">
-          {selectedTop ? (
-            <Image
-              src={getPrimaryImage(selectedTop) || '/placeholder.png'}
-              alt={selectedTop.name}
-              fill
-              className="object-contain p-4"
-            />
-          ) : (
-            <span className="text-muted-foreground font-medium">Pilih Atasan</span>
-          )}
-        </div>
-
-        <div className="w-64 h-64 border-4 border-black bg-white relative neo-shadow flex items-center justify-center overflow-hidden">
-          {selectedBottom ? (
-            <Image
-              src={getPrimaryImage(selectedBottom) || '/placeholder.png'}
-              alt={selectedBottom.name}
-              fill
-              className="object-contain p-4"
-            />
-          ) : (
-            <span className="text-muted-foreground font-medium">Pilih Bawahan</span>
-          )}
-        </div>
-
-        <div className="bg-white border-4 border-black p-4 neo-shadow w-64 text-center mt-4">
-          <p className="font-bold text-xl mb-1">Total Harga</p>
-          <p className="text-primary text-2xl font-black">{formatCurrency(totalPrice)}</p>
-        </div>
-
-        <Button
-          onClick={handleAddToCart}
-          disabled={!selectedTop || !selectedBottom || isLoading}
-          size="lg"
-          className="w-64 border-2 border-black neo-shadow-sm font-bold text-lg uppercase h-14 bg-black text-white hover:bg-black/90"
-        >
-          {isLoading ? 'Menambahkan...' : 'Add to Cart'}
-        </Button>
-      </div>
-
-      {/* Selection Section */}
-      <div className="space-y-10">
-        <div>
-          <h3 className="text-xl font-bold uppercase tracking-tight mb-4 border-b-2 border-black pb-2">
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+      {/* Selection Section (Left/Top) */}
+      <div className="xl:col-span-8 space-y-12 order-2 xl:order-1">
+        {/* TOPS SELECTION */}
+        <div className="bg-white border-4 border-foreground p-6 shadow-[8px_8px_0_0_rgba(0,0,0,1)]">
+          <h3 className="text-2xl font-black uppercase tracking-tight mb-6 flex items-center gap-3">
+            <span className="bg-primary text-white px-3 py-1 rounded-sm transform -rotate-2">01</span>
             Pilih Atasan
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {tops.map(top => (
-              <div 
+              <button 
                 key={top.id}
                 onClick={() => setSelectedTop(top)}
-                className={`cursor-pointer border-2 border-black transition-all p-2 ${
-                  selectedTop?.id === top.id ? 'bg-primary/20 neo-shadow' : 'bg-white hover:neo-shadow-sm hover:-translate-y-1'
+                className={`group relative text-left border-2 border-foreground transition-all p-3 ${
+                  selectedTop?.id === top.id 
+                    ? 'bg-primary/10 shadow-[4px_4px_0_0_rgba(0,0,0,1)] -translate-x-1 -translate-y-1 border-primary' 
+                    : 'bg-white hover:bg-gray-50'
                 }`}
               >
-                <div className="relative aspect-square w-full bg-gray-50 border border-black/10 mb-2">
+                <div className="relative aspect-square w-full bg-background border-2 border-foreground/10 mb-3 overflow-hidden">
                   <Image
                     src={getPrimaryImage(top) || '/placeholder.png'}
                     alt={top.name}
                     fill
-                    className="object-cover"
+                    className="object-cover group-hover:scale-105 transition-transform"
                   />
+                  {selectedTop?.id === top.id && (
+                    <div className="absolute top-2 right-2 bg-primary text-white w-6 h-6 flex items-center justify-center rounded-full font-bold text-xs border-2 border-foreground">
+                      ✓
+                    </div>
+                  )}
                 </div>
-                <p className="font-bold text-sm truncate">{top.name}</p>
-                <p className="text-primary text-sm font-semibold">{formatCurrency(top.price)}</p>
-              </div>
+                <p className="font-bold text-sm line-clamp-1 mb-1">{top.name}</p>
+                <p className="text-primary font-black text-sm">{formatCurrency(top.price)}</p>
+              </button>
             ))}
           </div>
         </div>
 
-        <div>
-          <h3 className="text-xl font-bold uppercase tracking-tight mb-4 border-b-2 border-black pb-2">
+        {/* BOTTOMS SELECTION */}
+        <div className="bg-white border-4 border-foreground p-6 shadow-[8px_8px_0_0_rgba(0,0,0,1)]">
+          <h3 className="text-2xl font-black uppercase tracking-tight mb-6 flex items-center gap-3">
+            <span className="bg-yellow-400 text-black px-3 py-1 rounded-sm transform rotate-2">02</span>
             Pilih Bawahan
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {bottoms.map(bottom => (
-              <div 
+              <button 
                 key={bottom.id}
                 onClick={() => setSelectedBottom(bottom)}
-                className={`cursor-pointer border-2 border-black transition-all p-2 ${
-                  selectedBottom?.id === bottom.id ? 'bg-primary/20 neo-shadow' : 'bg-white hover:neo-shadow-sm hover:-translate-y-1'
+                className={`group relative text-left border-2 border-foreground transition-all p-3 ${
+                  selectedBottom?.id === bottom.id 
+                    ? 'bg-yellow-50 shadow-[4px_4px_0_0_rgba(0,0,0,1)] -translate-x-1 -translate-y-1 border-yellow-500' 
+                    : 'bg-white hover:bg-gray-50'
                 }`}
               >
-                <div className="relative aspect-square w-full bg-gray-50 border border-black/10 mb-2">
+                <div className="relative aspect-square w-full bg-background border-2 border-foreground/10 mb-3 overflow-hidden">
                   <Image
                     src={getPrimaryImage(bottom) || '/placeholder.png'}
                     alt={bottom.name}
                     fill
-                    className="object-cover"
+                    className="object-cover group-hover:scale-105 transition-transform"
                   />
+                  {selectedBottom?.id === bottom.id && (
+                    <div className="absolute top-2 right-2 bg-yellow-400 text-black w-6 h-6 flex items-center justify-center rounded-full font-bold text-xs border-2 border-foreground">
+                      ✓
+                    </div>
+                  )}
                 </div>
-                <p className="font-bold text-sm truncate">{bottom.name}</p>
-                <p className="text-primary text-sm font-semibold">{formatCurrency(bottom.price)}</p>
-              </div>
+                <p className="font-bold text-sm line-clamp-1 mb-1">{bottom.name}</p>
+                <p className="text-primary font-black text-sm">{formatCurrency(bottom.price)}</p>
+              </button>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Preview Section (Right/Bottom) */}
+      <div className="xl:col-span-4 space-y-6 order-1 xl:order-2 xl:sticky xl:top-32">
+        <div className="border-4 border-foreground p-8 bg-white shadow-[12px_12px_0_0_rgba(0,0,0,1)] relative overflow-hidden">
+          {/* Decorative dots */}
+          <div className="absolute top-4 right-4 flex gap-1">
+            <div className="w-3 h-3 bg-red-400 border border-foreground rounded-full"></div>
+            <div className="w-3 h-3 bg-yellow-400 border border-foreground rounded-full"></div>
+            <div className="w-3 h-3 bg-green-400 border border-foreground rounded-full"></div>
+          </div>
+
+          <h2 className="text-3xl font-black uppercase tracking-tighter mb-8 text-center border-b-4 border-foreground pb-4">Outfit Preview</h2>
+          
+          <div className="space-y-4 flex flex-col items-center">
+            {/* TOP PREVIEW */}
+            <div className="relative w-full aspect-[4/5] max-w-[280px] border-4 border-foreground bg-background shadow-[6px_6px_0_0_rgba(0,0,0,0.1)] flex items-center justify-center overflow-hidden group">
+              {selectedTop ? (
+                <>
+                  <Image
+                    src={getPrimaryImage(selectedTop) || '/placeholder.png'}
+                    alt={selectedTop.name}
+                    fill
+                    className="object-contain p-6 group-hover:scale-110 transition-transform"
+                  />
+                  <div className="absolute bottom-2 left-2 bg-white border-2 border-foreground px-3 py-1 text-[10px] font-black uppercase shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                    {selectedTop.name}
+                  </div>
+                </>
+              ) : (
+                <div className="text-center p-4">
+                  <div className="w-12 h-12 border-2 border-foreground border-dashed rounded-full mx-auto mb-2 animate-bounce"></div>
+                  <span className="text-muted-foreground font-black uppercase text-xs">Pilih Atasan</span>
+                </div>
+              )}
+            </div>
+
+            {/* BOTTOM PREVIEW */}
+            <div className="relative w-full aspect-[4/5] max-w-[280px] border-4 border-foreground bg-background shadow-[6px_6px_0_0_rgba(0,0,0,0.1)] flex items-center justify-center overflow-hidden group">
+              {selectedBottom ? (
+                <>
+                  <Image
+                    src={getPrimaryImage(selectedBottom) || '/placeholder.png'}
+                    alt={selectedBottom.name}
+                    fill
+                    className="object-contain p-6 group-hover:scale-110 transition-transform"
+                  />
+                  <div className="absolute bottom-2 left-2 bg-white border-2 border-foreground px-3 py-1 text-[10px] font-black uppercase shadow-[2px_2px_0_0_rgba(0,0,0,1)]">
+                    {selectedBottom.name}
+                  </div>
+                </>
+              ) : (
+                <div className="text-center p-4">
+                  <div className="w-12 h-12 border-2 border-foreground border-dashed rounded-full mx-auto mb-2 animate-bounce delay-75"></div>
+                  <span className="text-muted-foreground font-black uppercase text-xs">Pilih Bawahan</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-8 pt-8 border-t-4 border-foreground">
+            <div className="flex justify-between items-end mb-6">
+              <span className="font-black uppercase text-sm text-muted-foreground">Estimate Total</span>
+              <span className="text-3xl font-black text-primary">{formatCurrency(totalPrice)}</span>
+            </div>
+
+            <Button
+              onClick={handleAddToCart}
+              disabled={!selectedTop || !selectedBottom || isLoading}
+              className="w-full border-4 border-foreground bg-primary text-white font-black text-xl uppercase h-16 shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-none disabled:opacity-50 disabled:grayscale"
+            >
+              {isLoading ? 'Processing...' : 'Beli Outfit Ini'}
+            </Button>
+            
+            <p className="text-[10px] text-center mt-4 text-muted-foreground font-bold uppercase tracking-widest">
+              Free Shipping for this bundle
+            </p>
           </div>
         </div>
       </div>
