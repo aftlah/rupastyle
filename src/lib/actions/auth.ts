@@ -7,47 +7,58 @@ import { createClient } from '../supabase/server'
 export async function login(formData: FormData) {
   const supabase = await createClient()
 
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  }
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
 
-  const { error } = await supabase.auth.signInWithPassword(data)
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
 
   if (error) {
-    redirect('/login?message=Could not authenticate user')
+    console.error('Login error:', error.message)
+    return redirect(`/login?error=${encodeURIComponent(error.message)}`)
   }
 
   revalidatePath('/', 'layout')
-  redirect('/')
+  return redirect('/')
 }
 
 export async function register(formData: FormData) {
   const supabase = await createClient()
 
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
+  const fullName = formData.get('fullName') as string
+
+  const { error, data } = await supabase.auth.signUp({
+    email,
+    password,
     options: {
       data: {
-        full_name: formData.get('fullName') as string,
+        full_name: fullName,
       },
     },
-  }
-
-  const { error } = await supabase.auth.signUp(data)
+  })
 
   if (error) {
-    redirect('/register?message=Could not register user')
+    console.error('Register error:', error.message)
+    return redirect(`/register?error=${encodeURIComponent(error.message)}`)
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/')
+  // Check if session exists (means email confirmation is disabled)
+  if (data?.session) {
+    revalidatePath('/', 'layout')
+    return redirect('/')
+  }
+
+  // If no session, usually means email confirmation is required
+  return redirect('/login?message=Silakan cek email Anda untuk konfirmasi pendaftaran.')
 }
 
 export async function logout() {
   const supabase = await createClient()
   await supabase.auth.signOut()
   revalidatePath('/', 'layout')
-  redirect('/login')
+  return redirect('/login')
 }

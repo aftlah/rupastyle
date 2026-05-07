@@ -15,7 +15,7 @@ export default async function Navbar() {
           <div className="flex-shrink-0">
             <Link 
               href="/" 
-              className="inline-block text-3xl md:text-4xl font-black tracking-tighter uppercase bg-primary text-white px-5 py-2 border-4 border-foreground shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-sm"
+              className="inline-block text-3xl md:text-4xl font-black tracking-tighter uppercase bg-primary text-white px-5 py-2 border-4 border-foreground shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-sm transform -rotate-3 hover:rotate-0"
             >
               RupaStyle
             </Link>
