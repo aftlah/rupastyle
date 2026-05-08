@@ -17,17 +17,23 @@ export default function AddToCartForm({ product }: AddToCartFormProps) {
   const [selectedColor, setSelectedColor] = useState<string | null>(colors[0] || null)
   const [quantity, setQuantity] = useState(1)
   const [isAdded, setIsAdded] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (formData: FormData) => {
-    setIsAdded(true)
+    setIsLoading(true)
     
     // Dispatch custom event to wobble cart in navbar
     window.dispatchEvent(new CustomEvent('cart-updated', { 
       detail: { quantity: quantity } 
     }))
     
-    await addToCartAction(formData)
-    setTimeout(() => setIsAdded(false), 2000)
+    try {
+      await addToCartAction(formData)
+      setIsAdded(true)
+      setTimeout(() => setIsAdded(false), 2000)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -123,7 +129,8 @@ export default function AddToCartForm({ product }: AddToCartFormProps) {
             className={`w-full h-16 border-4 border-foreground font-black uppercase text-xl transition-all relative overflow-hidden group shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] rounded-none ${
               isAdded ? 'bg-green-500 text-white' : 'bg-primary text-white'
             }`}
-            disabled={isAdded}
+            disabled={isAdded || isLoading}
+            isLoading={isLoading}
           >
             <span className={`flex items-center justify-center gap-3 transition-all duration-300 ${isAdded ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}>
               Add to Cart

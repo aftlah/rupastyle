@@ -17,7 +17,12 @@ export async function checkoutAction() {
     const order = await createOrder(user.id)
     revalidatePath('/cart')
     revalidatePath('/checkout')
-    redirect(`/order-success?order_id=${order.id}`)
+    
+    if (order.snap_redirect_url) {
+      redirect(order.snap_redirect_url)
+    } else {
+      redirect(`/order-success?order_id=${order.id}`)
+    }
   } catch (error) {
     console.error('Checkout error:', error)
     redirect('/checkout?error=Checkout failed')
