@@ -1,16 +1,17 @@
 'use client'
 
 import { useState } from "react"
+import { useCartStore } from "@/store/use-cart-store"
 import { Button } from "@/components/ui/button"
-import { addToCartAction } from "@/lib/actions/cart"
-import type { Product } from "@/types"
 import { Plus, Minus, CheckCircle2 } from "lucide-react"
+import type { Product } from "@/types"
 
 interface AddToCartFormProps {
   product: Product
 }
 
 export default function AddToCartForm({ product }: AddToCartFormProps) {
+  const addItem = useCartStore((state) => state.addItem)
   const sizes = product.variants?.sizes || []
   const colors = product.variants?.colors || []
   const [selectedSize, setSelectedSize] = useState<string | null>(sizes[0] || null)
@@ -19,25 +20,32 @@ export default function AddToCartForm({ product }: AddToCartFormProps) {
   const [isAdded, setIsAdded] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
     setIsLoading(true)
     
-    // Dispatch custom event to wobble cart in navbar
-    window.dispatchEvent(new CustomEvent('cart-updated', { 
-      detail: { quantity: quantity } 
-    }))
+    const primaryImage = product.images?.find(img => img.is_primary) || product.images?.[0]
     
-    try {
-      await addToCartAction(formData)
+    addItem({
+      id: Math.random().toString(36).substring(7),
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      image: primaryImage?.image_url || '',
+      quantity: quantity,
+      size: selectedSize || undefined,
+      color: selectedColor || undefined
+    })
+
+    setTimeout(() => {
+      setIsLoading(false)
       setIsAdded(true)
       setTimeout(() => setIsAdded(false), 2000)
-    } finally {
-      setIsLoading(false)
-    }
+    }, 500)
   }
 
   return (
-    <form action={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-8">
       <input type="hidden" name="productId" value={product.id} />
       <input type="hidden" name="size" value={selectedSize || ""} />
       <input type="hidden" name="color" value={selectedColor || ""} />

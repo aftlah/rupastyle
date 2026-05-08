@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useCartStore } from '@/store/use-cart-store'
 import { ShoppingBasket } from 'lucide-react'
 
 interface CartButtonProps {
@@ -9,21 +10,15 @@ interface CartButtonProps {
 }
 
 export default function CartButton({ initialCount }: CartButtonProps) {
-  const [count, setCount] = useState(initialCount)
+  const items = useCartStore((state) => state.items)
   const [isWobbling, setIsWobbling] = useState(false)
+  
+  // Calculate total count from Zustand store
+  const count = items.reduce((sum, item) => sum + item.quantity, 0)
 
   useEffect(() => {
-    // Listen for custom "cart-updated" event
-    const handleCartUpdate = (event: any) => {
-      // If we pass the new count in detail, use it
-      if (event.detail?.count !== undefined) {
-        setCount(event.detail.count)
-      } else {
-        // Otherwise just increment (simplistic, better to refetch if needed)
-        setCount(prev => prev + (event.detail?.quantity || 1))
-      }
-      
-      // Trigger wobble animation
+    // Listen for custom "cart-updated" event just for the wobble animation
+    const handleCartUpdate = () => {
       setIsWobbling(true)
       setTimeout(() => setIsWobbling(false), 500)
     }

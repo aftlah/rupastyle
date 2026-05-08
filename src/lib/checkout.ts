@@ -30,27 +30,24 @@ function generateOrderNumber() {
   return `ORD-${timestamp}-${random}`
 }
 
-export async function createOrder(userId: string): Promise<Order> {
+export async function createOrder(userId: string, items: any[]): Promise<Order> {
   const supabase = await createClient()
 
-  const cart = await getCartWithItems(userId)
+  console.log('--- START CHECKOUT (STATE MGMT) ---')
+  console.log('User ID:', userId)
+  console.log('Items:', items.length)
 
-  if (!cart || cart.items.length === 0) {
+  if (!items || items.length === 0) {
+    console.error('ERROR: Items are empty')
     throw new Error('Cart is empty')
   }
 
-  const validItems = cart.items.filter(item => item.product !== null)
-
-  if (validItems.length === 0) {
-    throw new Error('No valid items in cart')
-  }
-
-  const grossAmount = validItems.reduce((sum, item) => {
-    return sum + (item.product!.price * item.quantity)
+  const grossAmount = items.reduce((sum, item) => {
+    return sum + (item.price * item.quantity)
   }, 0)
+  console.log('Total Amount:', grossAmount)
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
-
   if (userError || !userData.user) {
     throw new Error('User not found')
   }
@@ -59,6 +56,7 @@ export async function createOrder(userId: string): Promise<Order> {
   const customerName = userData.user.email?.split('@')[0] || 'Customer'
   const customerEmail = userData.user.email || ''
 
+  console.log('Inserting order to database...')
   const { data: order, error: orderError } = await supabase
     .from('orders')
     .insert({
@@ -77,21 +75,22 @@ export async function createOrder(userId: string): Promise<Order> {
     .single()
 
   if (orderError) {
+    console.error('Database Error (orders):', orderError)
     throw orderError
   }
+  console.log('Order record created:', order.id)
 
-  const orderItems: Omit<OrderItem, 'id' | 'created_at'>[] = validItems.map(item => {
-    const primaryImage = item.product!.images?.find(img => img.is_primary) || item.product!.images?.[0]
+  const orderItems: Omit<OrderItem, 'id' | 'created_at'>[] = items.map(item => {
     return {
       order_id: order.id,
-      product_id: item.product_id,
-      product_name: item.product!.name,
-      product_slug: item.product!.slug,
-      price: item.product!.price,
+      product_id: item.productId,
+      product_name: item.name,
+      product_slug: item.productId, // Use productId as fallback slug if not provided
+      price: item.price,
       quantity: item.quantity,
       size: item.size,
       color: item.color,
-      image_url: primaryImage?.image_url || null,
+      image_url: item.image || null,
     }
   })
 
@@ -100,12 +99,14 @@ export async function createOrder(userId: string): Promise<Order> {
     .insert(orderItems)
 
   if (orderItemsError) {
+    console.error('Database Error (order_items):', orderItemsError)
     throw orderItemsError
   }
 
   let snapToken: string | null = null
   let snapRedirectUrl: string | null = null
 
+  console.log('Requesting Midtrans Snap Token...')
   try {
     const midtransResponse = await generateSnapToken({
       orderId: orderNumber,
@@ -115,12 +116,13 @@ export async function createOrder(userId: string): Promise<Order> {
     })
     snapToken = midtransResponse.token
     snapRedirectUrl = midtransResponse.redirect_url
+    console.log('Midtrans Success. Redirect URL:', snapRedirectUrl)
   } catch (midtransError) {
-    console.error('Midtrans token generation failed:', midtransError)
+    console.error('Midtrans API Error:', midtransError)
   }
 
   if (snapToken) {
-    const { error: updateError } = await supabase
+    await supabase
       .from('orders')
       .update({
         snap_token: snapToken,
@@ -128,22 +130,10 @@ export async function createOrder(userId: string): Promise<Order> {
       })
       .eq('id', order.id)
 
-    if (updateError) {
-      console.error('Failed to update order with snap token:', updateError)
-    }
-
     order.snap_token = snapToken
     order.snap_redirect_url = snapRedirectUrl
   }
 
-  const { error: deleteError } = await supabase
-    .from('cart_items')
-    .delete()
-    .eq('cart_id', cart.id)
-
-  if (deleteError) {
-    throw deleteError
-  }
-
+  console.log('--- END CHECKOUT SUCCESS ---')
   return order
 }
