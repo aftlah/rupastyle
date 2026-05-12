@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '../supabase/server'
 import { redirect } from 'next/navigation'
+import { createAdminClient, ensureProductImagesBucket } from '@/lib/supabase/admin'
 
 // Helper to check if user is admin
 async function checkAdmin() {
@@ -23,7 +24,7 @@ async function checkAdmin() {
 
 export async function upsertProduct(formData: FormData) {
   await checkAdmin()
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const id = formData.get('id') as string | null
   const name = formData.get('name') as string
@@ -31,10 +32,11 @@ export async function upsertProduct(formData: FormData) {
   const description = formData.get('description') as string
   const price = parseFloat(formData.get('price') as string)
   const stock = parseInt(formData.get('stock') as string)
-  const categoryId = formData.get('categoryId') as string
+  const categoryId = (formData.get('categoryId') as string) || null
   const isActive = formData.get('isActive') === 'on'
   const sizes = formData.get('sizes')?.toString().split(',').map(s => s.trim()).filter(Boolean) || []
   const colors = formData.get('colors')?.toString().split(',').map(c => c.trim()).filter(Boolean) || []
+  const imageFile = formData.get('image') as File | null
 
   const productData = {
     name,
@@ -66,14 +68,98 @@ export async function upsertProduct(formData: FormData) {
     productId = data.id
   }
 
-  // Handle images if provided in a separate step or here
-  // For simplicity, we assume images are handled via uploadProductImage action
+  if (productId && imageFile && imageFile.size > 0) {
+    await ensureProductImagesBucket()
+    const admin = createAdminClient()
+
+    const fileExt = imageFile.name.split('.').pop() || 'jpg'
+    const filePath = `${productId}/${crypto.randomUUID()}.${fileExt}`
+
+    const { error: uploadError } = await admin.storage
+      .from('product-images')
+      .upload(filePath, imageFile, { upsert: false })
+
+    if (uploadError) throw uploadError
+
+    const { data: { publicUrl } } = admin.storage
+      .from('product-images')
+      .getPublicUrl(filePath)
+
+    const { data: existingImages, error: existingError } = await admin
+      .from('product_images')
+      .select('id')
+      .eq('product_id', productId)
+      .limit(1)
+
+    if (existingError) throw existingError
+
+    const { error: imageInsertError } = await admin
+      .from('product_images')
+      .insert({
+        product_id: productId,
+        image_url: publicUrl,
+        is_primary: (existingImages?.length ?? 0) === 0,
+      })
+
+    if (imageInsertError) throw imageInsertError
+  }
 
   revalidatePath('/admin/products')
   revalidatePath(`/products/${slug}`)
   revalidatePath('/')
   
   return { success: true, productId }
+}
+
+export async function createProductAction(formData: FormData) {
+  await upsertProduct(formData)
+  redirect('/admin/products')
+}
+
+export async function updateProductAction(formData: FormData) {
+  await upsertProduct(formData)
+  redirect('/admin/products')
+}
+
+export async function createCategoryAction(formData: FormData) {
+  await checkAdmin()
+  const supabase = createAdminClient()
+
+  const name = (formData.get("name") as string) || ""
+  const slug = (formData.get("slug") as string) || ""
+  const description = (formData.get("description") as string) || null
+  const parentCategoryId = (formData.get("parentCategoryId") as string) || null
+
+  if (!name.trim() || !slug.trim()) {
+    redirect("/admin/categories/new?error=Nama%20dan%20slug%20wajib")
+  }
+
+  const { error } = await supabase
+    .from("categories")
+    .insert({
+      name: name.trim(),
+      slug: slug.trim(),
+      description: description ? description.toString().trim() : null,
+      parent_category_id: parentCategoryId,
+    })
+
+  if (error) {
+    const message = (() => {
+      const raw = (error as any)?.message?.toString?.() || "Gagal menyimpan kategori"
+      const lower = raw.toLowerCase()
+      if (lower.includes("row-level security") || lower.includes("rls")) {
+        return "Gagal menyimpan kategori (RLS). Tambahkan policy INSERT untuk admin di tabel categories."
+      }
+      if ((error as any)?.code === "23505" || lower.includes("duplicate key")) {
+        return "Slug sudah digunakan. Gunakan slug lain yang unik."
+      }
+      return raw
+    })()
+    redirect(`/admin/categories/new?error=${encodeURIComponent(message)}`)
+  }
+
+  revalidatePath("/admin/categories")
+  redirect("/admin/categories")
 }
 
 export async function deleteProduct(productId: string) {
@@ -93,7 +179,8 @@ export async function deleteProduct(productId: string) {
 
 export async function uploadProductImage(productId: string, file: File) {
   await checkAdmin()
-  const supabase = await createClient()
+  await ensureProductImagesBucket()
+  const supabase = createAdminClient()
 
   const fileExt = file.name.split('.').pop()
   const fileName = `${productId}/${Math.random()}.${fileExt}`
