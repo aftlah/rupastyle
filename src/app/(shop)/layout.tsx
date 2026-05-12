@@ -1,4 +1,6 @@
 import Navbar from "@/components/navbar";
+import WhatsAppChat from "@/components/whatsapp-chat";
+import Histats from "@/components/histats";
 
 export default function ShopLayout({
   children,
@@ -11,7 +13,8 @@ export default function ShopLayout({
       <main className="flex-1">
         {children}
       </main>
-      {/* Footer minimal bisa dipindah ke sini juga jika ingin seragam */}
+      <WhatsAppChat />
+      <Histats />
     </>
   );
 }

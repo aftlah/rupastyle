@@ -86,17 +86,61 @@ export default async function Home() {
           </Link>
         </div>
       </section>
+
+      <section className="py-20 px-4 max-w-7xl mx-auto w-full">
+        <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-10 border-b border-border/60 pb-6 gap-4">
+          <div className="text-center md:text-left">
+            <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-foreground">Promo Produk</h2>
+            <p className="text-muted-foreground mt-2">Pilihan produk favorit yang lagi kami highlight.</p>
+          </div>
+          <Link href="/products" className="font-bold uppercase text-sm border border-border px-6 py-2 rounded-md hover:bg-foreground hover:text-background transition-colors">
+            Lihat Katalog &rarr;
+          </Link>
+        </div>
+
+        {products.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12">
+            {products.slice(0, 4).map((product) => (
+              <div key={product.id} className="relative">
+                <div className="absolute -top-3 -left-3 z-10 bg-accent text-accent-foreground text-[10px] font-black uppercase px-3 py-1 border border-border shadow-sm rounded-full">
+                  Promo
+                </div>
+                <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 border border-border border-dashed bg-card rounded-xl">
+            <p className="text-muted-foreground font-bold italic">Belum ada produk untuk ditampilkan</p>
+          </div>
+        )}
+      </section>
       
       {/* Footer minimal */}
-      <footer className="border-t-2 border-foreground bg-white text-foreground py-16 px-4 mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
+      <footer className="border-t border-border bg-card text-foreground py-16 px-4 mt-auto">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 items-start text-center md:text-left">
           <div className="flex flex-col items-center md:items-start gap-2">
             <h2 className="text-2xl font-black tracking-tighter uppercase bg-primary text-white px-3 py-1 transform -rotate-1 inline-block rounded-sm">
               RupaStyle
             </h2>
             <p className="font-medium text-muted-foreground mt-2 max-w-sm">Elevating your everyday style with modern and comfortable fashion.</p>
           </div>
-          <p className="font-bold text-muted-foreground">© 2026 RupaStyle.</p>
+          <div className="space-y-3">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Informasi</p>
+            <div className="flex flex-col gap-2 font-bold">
+              <Link href="/about" className="hover:text-primary transition-colors">Profil</Link>
+              <Link href="/how-to-buy" className="hover:text-primary transition-colors">Cara Pembelian</Link>
+              <Link href="/contact" className="hover:text-primary transition-colors">Kontak</Link>
+            </div>
+          </div>
+          <div className="space-y-3 md:text-right">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Kebijakan</p>
+            <div className="flex flex-col gap-2 font-bold md:items-end">
+              <Link href="/privacy-policy" className="hover:text-primary transition-colors">Privasi</Link>
+              <Link href="/terms" className="hover:text-primary transition-colors">Syarat & Ketentuan</Link>
+            </div>
+            <p className="font-bold text-muted-foreground pt-4">© 2026 RupaStyle.</p>
+          </div>
         </div>
       </footer>
     </div>
