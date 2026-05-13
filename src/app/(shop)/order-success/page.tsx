@@ -63,12 +63,9 @@ export default async function OrderSuccessPage({ searchParams }: OrderSuccessPag
           payment_status: nextPaymentStatus ?? currentPaymentStatus,
           status: nextOrderStatus ?? currentOrderStatus,
           payment_type: status.payment_type ?? order.payment_type ?? null,
-          payment_status_raw: JSON.stringify(status),
         }
-        if (nextPaymentStatus === "paid") {
-          update.paid_at = status.transaction_time ?? null
-        }
-        await admin.from("orders").update(update).eq("id", order.id)
+        const { error } = await admin.from("orders").update(update).eq("id", order.id)
+        if (error) throw error
         currentPaymentStatus = update.payment_status
         currentOrderStatus = update.status
       }
@@ -174,7 +171,7 @@ export default async function OrderSuccessPage({ searchParams }: OrderSuccessPag
 
             {isPaid ? (
               <div className="p-4 border-4 border-foreground bg-green-100 text-foreground font-black uppercase text-xs text-center rounded-xl">
-                Status: Paid
+                Pembayaran berhasil.
               </div>
             ) : snapToken ? (
               <PaymentButton snapToken={snapToken} />

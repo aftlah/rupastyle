@@ -14,10 +14,21 @@ export async function POST(request: Request) {
 
     // Validate Signature
     const serverKey = process.env.MIDTRANS_SERVER_KEY || ''
+    if (!serverKey) {
+      console.error('Webhook error: MIDTRANS_SERVER_KEY is not set')
+      return NextResponse.json({ message: 'Server misconfigured' }, { status: 500 })
+    }
     const hashData = `${body.order_id}${body.status_code}${body.gross_amount}${serverKey}`
     const signatureKey = crypto.createHash('sha512').update(hashData).digest('hex')
 
     if (signatureKey !== body.signature_key) {
+      console.error('Invalid Midtrans signature', {
+        order_id: body.order_id,
+        status_code: body.status_code,
+        gross_amount: body.gross_amount,
+        payment_type: body.payment_type,
+        transaction_status: body.transaction_status,
+      })
       return NextResponse.json({ message: 'Invalid signature' }, { status: 400 })
     }
 
@@ -40,15 +51,12 @@ export async function POST(request: Request) {
         break
     }
 
-    // Update order in Supabase
     const { error } = await supabaseAdmin
       .from('orders')
       .update({
-        status: newStatus === 'paid' ? 'processing' : newStatus, // Order status
-        payment_status: newStatus, // Payment status
+        status: newStatus === 'paid' ? 'processing' : newStatus,
+        payment_status: newStatus,
         payment_type: payment_type,
-        paid_at: newStatus === 'paid' ? transaction_time : null,
-        payment_status_raw: JSON.stringify(body),
       })
       .eq('midtrans_order_id', order_id)
 
@@ -57,6 +65,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Database update failed' }, { status: 500 })
     }
 
+    console.log('Webhook processed', { order_id, transaction_status, mapped_payment_status: newStatus })
     return NextResponse.json({ message: 'OK' })
   } catch (error) {
     console.error('Webhook error:', error)
