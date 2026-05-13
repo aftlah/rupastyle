@@ -211,6 +211,29 @@ export async function uploadProductImage(productId: string, file: File) {
   return { success: true, url: publicUrl }
 }
 
+export async function setUserRoleAction(formData: FormData) {
+  const user = await checkAdmin()
+  const supabase = createAdminClient()
+
+  const userId = (formData.get("userId") as string | null) ?? ""
+  const role = (formData.get("role") as string | null) ?? ""
+
+  if (!userId.trim()) return
+  if (userId === user.id) return
+
+  const isAdmin = role === "admin"
+  if (role !== "admin" && role !== "user") return
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ is_admin: isAdmin })
+    .eq("id", userId)
+
+  if (error) throw error
+
+  revalidatePath("/admin/users")
+}
+
 export async function getAdminStats() {
   await checkAdmin()
   const supabase = await createClient()

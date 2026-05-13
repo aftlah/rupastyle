@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { setUserRoleAction } from "@/lib/actions/admin"
 
 type AdminUserRow = {
   id: string
@@ -14,6 +15,7 @@ export const metadata = {
 
 export default async function AdminUsersPage() {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
   const { data: users, error } = await supabase
     .from("profiles")
@@ -56,6 +58,7 @@ export default async function AdminUsersPage() {
                   <th className="py-3 pr-4 font-black uppercase text-[10px] tracking-widest text-muted-foreground">Role</th>
                   <th className="py-3 pr-4 font-black uppercase text-[10px] tracking-widest text-muted-foreground">User ID</th>
                   <th className="py-3 font-black uppercase text-[10px] tracking-widest text-muted-foreground">Created</th>
+                  <th className="py-3 text-right font-black uppercase text-[10px] tracking-widest text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -75,6 +78,29 @@ export default async function AdminUsersPage() {
                     </td>
                     <td className="py-4 text-muted-foreground font-bold">
                       {new Date(u.created_at).toLocaleString("id-ID")}
+                    </td>
+                    <td className="py-4">
+                      {user?.id === u.id ? (
+                        <div className="text-right text-xs font-bold text-muted-foreground">Tidak bisa ubah diri sendiri</div>
+                      ) : (
+                        <form action={setUserRoleAction} className="flex items-center justify-end gap-2">
+                          <input type="hidden" name="userId" value={u.id} />
+                          <select
+                            name="role"
+                            defaultValue={u.is_admin ? "admin" : "user"}
+                            className="h-10 px-3 border-2 border-foreground font-bold bg-white rounded-xl"
+                          >
+                            <option value="user">user</option>
+                            <option value="admin">admin</option>
+                          </select>
+                          <button
+                            type="submit"
+                            className="h-10 px-4 border-2 border-foreground bg-primary text-white font-black uppercase text-xs shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all rounded-xl"
+                          >
+                            Simpan
+                          </button>
+                        </form>
+                      )}
                     </td>
                   </tr>
                 ))}
