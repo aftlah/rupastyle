@@ -50,7 +50,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
       <header className="flex flex-col gap-3">
         <Link
           href="/admin/products"
-          className="inline-flex w-fit items-center gap-2 border-2 border-foreground bg-white px-4 py-2 font-black uppercase text-xs shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+          className="inline-flex w-fit items-center gap-2 border-2 border-foreground bg-white px-4 py-2 font-black uppercase text-xs shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all rounded-xl"
         >
           <ArrowLeft size={16} />
           Back
@@ -68,7 +68,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
           <form action={updateProductAction}>
             <input type="hidden" name="id" value={product.id} />
 
-            <div className="bg-white border-4 border-foreground shadow-[12px_12px_0_0_rgba(0,0,0,1)] p-8 space-y-8">
+            <div className="bg-white border-4 border-foreground shadow-[12px_12px_0_0_rgba(0,0,0,1)] p-8 space-y-8 rounded-xl">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
@@ -78,7 +78,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
                     name="name"
                     required
                     defaultValue={product.name}
-                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                   />
                 </div>
 
@@ -90,7 +90,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
                     name="slug"
                     required
                     defaultValue={product.slug}
-                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all font-mono"
+                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all font-mono rounded-xl"
                   />
                 </div>
 
@@ -103,7 +103,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
                     required
                     rows={5}
                     defaultValue={product.description ?? ""}
-                    className="w-full px-4 py-3 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                    className="w-full px-4 py-3 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                   />
                 </div>
 
@@ -117,7 +117,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
                     min={0}
                     required
                     defaultValue={product.price}
-                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                   />
                 </div>
 
@@ -131,7 +131,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
                     min={0}
                     required
                     defaultValue={product.stock}
-                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                   />
                 </div>
 
@@ -141,7 +141,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
                   </label>
                   <select
                     name="categoryId"
-                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                     defaultValue={product.category_id ?? ""}
                   >
                     <option value="">Uncategorized</option>
@@ -163,7 +163,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
                   <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
                     Status
                   </label>
-                  <label className="flex items-center gap-3 border-2 border-foreground px-4 h-12 font-black uppercase">
+                  <label className="flex items-center gap-3 border-2 border-foreground px-4 h-12 font-black uppercase rounded-xl">
                     <input type="checkbox" name="isActive" defaultChecked={Boolean(product.is_active)} className="h-5 w-5" />
                     Active
                   </label>
@@ -176,7 +176,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
                   <input
                     name="sizes"
                     defaultValue={sizes}
-                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                     placeholder="S, M, L"
                   />
                 </div>
@@ -188,7 +188,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
                   <input
                     name="colors"
                     defaultValue={colors}
-                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                     placeholder="Black, White"
                   />
                 </div>
@@ -201,7 +201,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
                     name="image"
                     type="file"
                     accept="image/png,image/jpeg,image/webp"
-                    className="w-full border-2 border-foreground p-3 font-bold"
+                    className="w-full border-2 border-foreground p-3 font-bold rounded-xl"
                   />
                   <p className="text-xs text-muted-foreground font-bold">
                     Foto akan disimpan ke Supabase Storage bucket product-images.
@@ -212,13 +212,13 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
               <div className="flex flex-col sm:flex-row gap-3 justify-end">
                 <Link
                   href="/admin/products"
-                  className="h-14 px-8 border-4 border-foreground bg-white text-foreground font-black uppercase text-lg shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all rounded-none inline-flex items-center justify-center"
+                  className="h-14 px-8 border-4 border-foreground bg-white text-foreground font-black uppercase text-lg shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all rounded-xl inline-flex items-center justify-center"
                 >
                   Cancel
                 </Link>
                 <button
                   type="submit"
-                  className="h-14 px-8 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-none"
+                  className="h-14 px-8 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl"
                 >
                   Save Changes
                 </button>
@@ -228,11 +228,11 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
         </section>
 
         <aside className="space-y-6">
-          <div className="bg-white border-4 border-foreground shadow-[8px_8px_0_0_rgba(0,0,0,1)] p-6">
+          <div className="bg-white border-4 border-foreground shadow-[8px_8px_0_0_rgba(0,0,0,1)] p-6 rounded-xl">
             <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">
               Preview
             </p>
-            <div className="relative w-full aspect-square border-2 border-foreground bg-background overflow-hidden">
+            <div className="relative w-full aspect-square border-2 border-foreground bg-background overflow-hidden rounded-xl">
               {primaryImage ? (
                 <Image
                   src={primaryImage.image_url}
@@ -255,7 +255,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
             </div>
           </div>
 
-          <div className="bg-white border-4 border-foreground shadow-[8px_8px_0_0_rgba(0,0,0,1)] p-6">
+          <div className="bg-white border-4 border-foreground shadow-[8px_8px_0_0_rgba(0,0,0,1)] p-6 rounded-xl">
             <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-4">
               Images ({images.length})
             </p>
@@ -266,7 +266,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
                 {images.map((img) => (
                   <div
                     key={img.id}
-                    className="relative aspect-square border-2 border-foreground bg-background overflow-hidden"
+                    className="relative aspect-square border-2 border-foreground bg-background overflow-hidden rounded-xl"
                     title={img.is_primary ? "Primary" : "Image"}
                   >
                     <Image
@@ -277,7 +277,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
                       sizes="120px"
                     />
                     {img.is_primary ? (
-                      <div className="absolute top-2 left-2 bg-primary text-white text-[10px] font-black uppercase px-2 py-1 border-2 border-foreground">
+                      <div className="absolute top-2 left-2 bg-primary text-white text-[10px] font-black uppercase px-2 py-1 border-2 border-foreground rounded-xl">
                         Primary
                       </div>
                     ) : null}
@@ -291,4 +291,3 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
     </div>
   )
 }
-

@@ -65,7 +65,7 @@ export default function CheckoutClient() {
         className="grid grid-cols-1 lg:grid-cols-3 gap-12"
       >
         <div className="lg:col-span-2 space-y-8">
-          <Card className="border-4 border-foreground rounded-none shadow-[12px_12px_0_0_rgba(0,0,0,1)] bg-white overflow-hidden">
+          <Card className="border-4 border-foreground rounded-xl shadow-[12px_12px_0_0_rgba(0,0,0,1)] bg-white overflow-hidden">
             <CardHeader className="bg-foreground text-white border-b-4 border-foreground">
               <CardTitle className="text-xl font-black uppercase tracking-widest">Ringkasan Pesanan</CardTitle>
             </CardHeader>
@@ -75,7 +75,7 @@ export default function CheckoutClient() {
                   key={item.id}
                   className="flex gap-6 py-6 border-b-4 border-foreground/5 last:border-0"
                 >
-                  <div className="relative w-24 h-24 border-4 border-foreground rounded-none overflow-hidden bg-muted flex-shrink-0 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+                  <div className="relative w-24 h-24 border-4 border-foreground rounded-xl overflow-hidden bg-muted flex-shrink-0 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
                     {item.image ? (
                       <Image
                         src={item.image}
@@ -94,15 +94,15 @@ export default function CheckoutClient() {
                     <p className="text-lg font-black uppercase truncate">{item.name}</p>
                     <div className="text-sm font-bold text-muted-foreground space-y-1 mt-1">
                       {item.size && <p className="flex items-center gap-2">
-                        <span className="bg-secondary px-2 py-0.5 border border-foreground/10 text-[10px]">SIZE</span> 
+                        <span className="bg-secondary px-2 py-0.5 border border-foreground/10 text-[10px] rounded-xl">SIZE</span> 
                         {item.size}
                       </p>}
                       {item.color && <p className="flex items-center gap-2">
-                        <span className="bg-secondary px-2 py-0.5 border border-foreground/10 text-[10px]">COLOR</span>
+                        <span className="bg-secondary px-2 py-0.5 border border-foreground/10 text-[10px] rounded-xl">COLOR</span>
                         {item.color}
                       </p>}
                       <p className="flex items-center gap-2">
-                        <span className="bg-secondary px-2 py-0.5 border border-foreground/10 text-[10px]">QTY</span>
+                        <span className="bg-secondary px-2 py-0.5 border border-foreground/10 text-[10px] rounded-xl">QTY</span>
                         {item.quantity}
                       </p>
                     </div>
@@ -117,7 +117,7 @@ export default function CheckoutClient() {
             </CardContent>
           </Card>
 
-          <Card className="border-4 border-foreground rounded-none shadow-[12px_12px_0_0_rgba(0,0,0,1)] bg-white overflow-hidden">
+          <Card className="border-4 border-foreground rounded-xl shadow-[12px_12px_0_0_rgba(0,0,0,1)] bg-white overflow-hidden">
             <CardHeader className="bg-foreground text-white border-b-4 border-foreground">
               <CardTitle className="text-xl font-black uppercase tracking-widest">Pengiriman</CardTitle>
             </CardHeader>
@@ -130,7 +130,7 @@ export default function CheckoutClient() {
                   name="shippingMethod"
                   value={shippingMethod}
                   onChange={(e) => setShippingMethod(e.target.value as any)}
-                  className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                  className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                 >
                   {SHIPPING_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -145,7 +145,7 @@ export default function CheckoutClient() {
             </CardContent>
           </Card>
 
-          <Card className="border-4 border-foreground rounded-none shadow-[12px_12px_0_0_rgba(0,0,0,1)] bg-white overflow-hidden">
+          <Card className="border-4 border-foreground rounded-xl shadow-[12px_12px_0_0_rgba(0,0,0,1)] bg-white overflow-hidden">
             <CardHeader className="bg-foreground text-white border-b-4 border-foreground">
               <CardTitle className="text-xl font-black uppercase tracking-widest">Data Penerima</CardTitle>
             </CardHeader>
@@ -158,7 +158,7 @@ export default function CheckoutClient() {
                   <input
                     name="customerName"
                     required
-                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                     placeholder="Nama penerima"
                   />
                 </div>
@@ -169,7 +169,7 @@ export default function CheckoutClient() {
                   <input
                     name="customerPhone"
                     required
-                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                     placeholder="08xxxxxxxxxx"
                     inputMode="tel"
                   />
@@ -182,7 +182,7 @@ export default function CheckoutClient() {
                     name="shippingAddress"
                     required
                     rows={4}
-                    className="w-full px-4 py-3 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                    className="w-full px-4 py-3 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                     placeholder="Nama jalan, nomor rumah, kecamatan, kota, provinsi, kode pos"
                   />
                 </div>
@@ -193,7 +193,7 @@ export default function CheckoutClient() {
                   <textarea
                     name="note"
                     rows={3}
-                    className="w-full px-4 py-3 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                    className="w-full px-4 py-3 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                     placeholder="Contoh: titip satpam / patokan rumah / warna packing"
                   />
                 </div>
@@ -203,7 +203,7 @@ export default function CheckoutClient() {
         </div>
 
         <div className="lg:col-span-1">
-          <Card className="border-4 border-foreground rounded-none shadow-[12px_12px_0_0_rgba(0,0,0,1)] bg-white sticky top-24">
+          <Card className="border-4 border-foreground rounded-xl shadow-[12px_12px_0_0_rgba(0,0,0,1)] bg-white sticky top-24">
             <CardHeader className="bg-primary text-white border-b-4 border-foreground">
               <CardTitle className="text-xl font-black uppercase tracking-widest text-center">Total Pembayaran</CardTitle>
             </CardHeader>

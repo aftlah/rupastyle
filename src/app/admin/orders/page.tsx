@@ -41,13 +41,13 @@ export default async function AdminOrdersPage() {
         </div>
         <Link
           href="/"
-          className="text-xs font-black uppercase hover:text-primary transition-colors border-2 border-foreground px-4 py-2 bg-white shadow-[3px_3px_0_0_rgba(0,0,0,1)]"
+          className="text-xs font-black uppercase hover:text-primary transition-colors border-2 border-foreground px-4 py-2 bg-white shadow-[3px_3px_0_0_rgba(0,0,0,1)] rounded-xl"
         >
           View Site
         </Link>
       </header>
 
-      <section className="bg-white border-4 border-foreground p-6 shadow-[10px_10px_0_0_rgba(0,0,0,1)] rounded-2xl">
+      <section className="bg-white border-4 border-foreground p-6 shadow-[10px_10px_0_0_rgba(0,0,0,1)] rounded-xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-black uppercase tracking-tight">Latest Orders</h2>
           <div className="text-xs font-black uppercase text-muted-foreground tracking-widest">
@@ -85,12 +85,12 @@ export default async function AdminOrdersPage() {
                     </td>
                     <td className="py-4 pr-4 font-black">{formatCurrency(order.gross_amount)}</td>
                     <td className="py-4 pr-4">
-                      <span className="inline-flex items-center px-2 py-1 text-[10px] font-black uppercase border border-foreground">
+                      <span className="inline-flex items-center px-2 py-1 text-[10px] font-black uppercase border border-foreground rounded-xl">
                         {order.payment_status}
                       </span>
                     </td>
                     <td className="py-4 pr-4">
-                      <span className="inline-flex items-center px-2 py-1 text-[10px] font-black uppercase border border-foreground">
+                      <span className="inline-flex items-center px-2 py-1 text-[10px] font-black uppercase border border-foreground rounded-xl">
                         {order.status}
                       </span>
                     </td>
@@ -107,4 +107,3 @@ export default async function AdminOrdersPage() {
     </div>
   )
 }
-

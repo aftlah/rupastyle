@@ -30,9 +30,9 @@ export default async function OrderSuccessPage({ searchParams }: OrderSuccessPag
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
       <div className="flex justify-center">
-        <Card className="w-full max-w-lg border-4 border-foreground rounded-none shadow-[16px_16px_0_0_rgba(0,0,0,1)] bg-white overflow-hidden">
+        <Card className="w-full max-w-lg border-4 border-foreground rounded-xl shadow-[16px_16px_0_0_rgba(0,0,0,1)] bg-white overflow-hidden">
           <CardHeader className="bg-green-400 border-b-4 border-foreground py-10">
-            <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-none border-4 border-foreground bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
+            <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-xl border-4 border-foreground bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
               <svg
                 className="h-12 w-12 text-foreground"
                 fill="none"
@@ -55,7 +55,7 @@ export default async function OrderSuccessPage({ searchParams }: OrderSuccessPag
               Satu langkah lagi, silakan selesaikan pembayaran Anda.
             </p>
             
-            <div className="space-y-4 border-4 border-foreground p-6 bg-secondary shadow-[8px_8px_0_0_rgba(0,0,0,0.1)]">
+            <div className="space-y-4 border-4 border-foreground p-6 bg-secondary shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] rounded-xl">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Order Number</p>
                 <p className="font-black text-xl uppercase italic">{order.order_number}</p>
@@ -71,13 +71,13 @@ export default async function OrderSuccessPage({ searchParams }: OrderSuccessPag
             {order.snap_token ? (
               <PaymentButton snapToken={order.snap_token} />
             ) : (
-              <div className="p-4 border-4 border-destructive bg-destructive/10 text-destructive font-black uppercase text-xs text-center">
+              <div className="p-4 border-4 border-destructive bg-destructive/10 text-destructive font-black uppercase text-xs text-center rounded-xl">
                 Token pembayaran tidak tersedia. Silakan hubungi admin.
               </div>
             )}
           </CardContent>
           <CardFooter className="p-10 pt-0 flex flex-col gap-4">
-            <Button asChild variant="outline" className="w-full h-14 border-4 border-foreground bg-white text-foreground font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-none">
+            <Button asChild variant="outline" className="w-full h-14 border-4 border-foreground bg-white text-foreground font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl">
               <Link href="/products">Lanjut Belanja</Link>
             </Button>
           </CardFooter>

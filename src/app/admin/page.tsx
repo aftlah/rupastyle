@@ -46,10 +46,10 @@ export default async function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Orders */}
-        <section className="bg-white border-4 border-foreground p-8 shadow-[10px_10px_0_0_rgba(0,0,0,1)] rounded-2xl">
+        <section className="bg-white border-4 border-foreground p-8 shadow-[10px_10px_0_0_rgba(0,0,0,1)] rounded-xl">
           <div className="flex justify-between items-center mb-8">
             <h3 className="text-2xl font-black uppercase tracking-tight flex items-center gap-3">
-              <div className="p-2 bg-blue-100 border-2 border-foreground shadow-[2px_2px_0_0_rgba(0,0,0,1)] rounded-md">
+              <div className="p-2 bg-blue-100 border-2 border-foreground shadow-[2px_2px_0_0_rgba(0,0,0,1)] rounded-xl">
                 <Clock size={24} className="text-blue-600" />
               </div>
               Recent Orders
@@ -84,10 +84,10 @@ export default async function AdminDashboard() {
         </section>
 
         {/* Stock Alerts */}
-        <section className="bg-white border-4 border-foreground p-8 shadow-[10px_10px_0_0_rgba(0,0,0,1)] rounded-2xl">
+        <section className="bg-white border-4 border-foreground p-8 shadow-[10px_10px_0_0_rgba(0,0,0,1)] rounded-xl">
           <div className="flex justify-between items-center mb-8">
             <h3 className="text-2xl font-black uppercase tracking-tight flex items-center gap-3">
-              <div className="p-2 bg-orange-100 border-2 border-foreground shadow-[2px_2px_0_0_rgba(0,0,0,1)] rounded-md">
+              <div className="p-2 bg-orange-100 border-2 border-foreground shadow-[2px_2px_0_0_rgba(0,0,0,1)] rounded-xl">
                 <AlertTriangle size={24} className="text-orange-600" />
               </div> 
               Inventory Alerts
@@ -125,11 +125,11 @@ function StatCard({ title, value, icon, color, trend, urgent }: any) {
   return (
     <div className={`p-6 border-4 border-foreground bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none transition-all ${urgent ? 'ring-8 ring-orange-500/10' : ''} rounded-xl`}>
       <div className="flex justify-between items-start mb-4">
-        <div className={`p-3 border-4 border-foreground shadow-[3px_3px_0_0_rgba(0,0,0,1)] ${color} rounded-lg`}>
+        <div className={`p-3 border-4 border-foreground shadow-[3px_3px_0_0_rgba(0,0,0,1)] ${color} rounded-xl`}>
           {icon}
         </div>
         {trend && (
-          <span className="text-[10px] font-black uppercase bg-green-100 text-green-700 px-3 py-1 border-2 border-green-700/20 rounded-full">
+          <span className="text-[10px] font-black uppercase bg-green-100 text-green-700 px-3 py-1 border-2 border-green-700/20 rounded-xl">
             {trend}
           </span>
         )}

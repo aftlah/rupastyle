@@ -24,7 +24,7 @@ export default async function Home() {
           <div className="absolute top-1/4 right-8 md:top-1/3 md:right-32 w-16 h-16 md:w-20 md:h-20 bg-pink-200 border-2 border-foreground -rotate-12 mix-blend-multiply opacity-60"></div>
           
           <div className="max-w-4xl relative z-10 flex flex-col items-center text-center">
-          <div className="inline-block border-2 border-foreground bg-white px-6 py-2 mb-8 transform -rotate-1 shadow-[4px_4px_0_0_rgba(0,0,0,0.9)]">
+          <div className="inline-block border-2 border-foreground bg-white px-6 py-2 mb-8 transform -rotate-1 shadow-[4px_4px_0_0_rgba(0,0,0,0.9)] rounded-xl">
             <span className="text-sm md:text-base font-bold uppercase tracking-widest text-primary">Koleksi Eksklusif 2026</span>
           </div>
           
@@ -40,13 +40,13 @@ export default async function Home() {
           <div className="flex flex-col sm:flex-row gap-5">
             <Link 
               href="/outfit-builder" 
-              className="border-2 border-foreground bg-primary text-white px-8 py-4 font-bold uppercase text-base hover:bg-primary/90 shadow-[4px_4px_0_0_rgba(0,0,0,0.9)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.9)] hover:-translate-y-1 transition-all rounded-md"
+              className="border-2 border-foreground bg-primary text-white px-8 py-4 font-bold uppercase text-base hover:bg-primary/90 shadow-[4px_4px_0_0_rgba(0,0,0,0.9)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.9)] hover:-translate-y-1 transition-all rounded-xl"
             >
               Coba Outfit Builder
             </Link>
             <Link 
               href="#koleksi" 
-              className="border-2 border-foreground bg-white text-foreground px-8 py-4 font-bold uppercase text-base hover:bg-gray-50 shadow-[4px_4px_0_0_rgba(0,0,0,0.9)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.9)] hover:-translate-y-1 transition-all rounded-md"
+              className="border-2 border-foreground bg-white text-foreground px-8 py-4 font-bold uppercase text-base hover:bg-gray-50 shadow-[4px_4px_0_0_rgba(0,0,0,0.9)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.9)] hover:-translate-y-1 transition-all rounded-xl"
             >
               Lihat Koleksi
             </Link>
@@ -62,7 +62,7 @@ export default async function Home() {
             <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-foreground">Koleksi Terbaru</h2>
             <p className="text-muted-foreground mt-2">Pilihan fashion terkini untuk menunjang penampilanmu.</p>
           </div>
-          <Link href="/products" className="font-bold uppercase text-sm border-2 border-foreground px-6 py-2 rounded-md hover:bg-foreground hover:text-white transition-colors">
+          <Link href="/products" className="font-bold uppercase text-sm border-2 border-foreground px-6 py-2 rounded-xl hover:bg-foreground hover:text-white transition-colors">
             Lihat Semua &rarr;
           </Link>
         </div>
@@ -81,7 +81,7 @@ export default async function Home() {
         )}
         
         <div className="mt-12 text-center sm:hidden">
-          <Link href="/products" className="inline-block font-bold uppercase border-4 border-black bg-primary text-white px-8 py-3 neo-shadow-sm hover:neo-shadow-hover hover:-translate-y-1 transition-all">
+          <Link href="/products" className="inline-block font-bold uppercase border-4 border-black bg-primary text-white px-8 py-3 neo-shadow-sm hover:neo-shadow-hover hover:-translate-y-1 transition-all rounded-xl">
             Lihat Semua Produk
           </Link>
         </div>
@@ -93,7 +93,7 @@ export default async function Home() {
             <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-foreground">Promo Produk</h2>
             <p className="text-muted-foreground mt-2">Pilihan produk favorit yang lagi kami highlight.</p>
           </div>
-          <Link href="/products" className="font-bold uppercase text-sm border border-border px-6 py-2 rounded-md hover:bg-foreground hover:text-background transition-colors">
+          <Link href="/products" className="font-bold uppercase text-sm border border-border px-6 py-2 rounded-xl hover:bg-foreground hover:text-background transition-colors">
             Lihat Katalog &rarr;
           </Link>
         </div>
@@ -102,7 +102,7 @@ export default async function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12">
             {products.slice(0, 4).map((product) => (
               <div key={product.id} className="relative">
-                <div className="absolute -top-3 -left-3 z-10 bg-accent text-accent-foreground text-[10px] font-black uppercase px-3 py-1 border border-border shadow-sm rounded-full">
+                <div className="absolute -top-3 -left-3 z-10 bg-accent text-accent-foreground text-[10px] font-black uppercase px-3 py-1 border border-border shadow-sm rounded-xl">
                   Promo
                 </div>
                 <ProductCard product={product} />
@@ -120,7 +120,7 @@ export default async function Home() {
       <footer className="border-t border-border bg-card text-foreground py-16 px-4 mt-auto">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 items-start text-center md:text-left">
           <div className="flex flex-col items-center md:items-start gap-2">
-            <h2 className="text-2xl font-black tracking-tighter uppercase bg-primary text-white px-3 py-1 transform -rotate-1 inline-block rounded-sm">
+            <h2 className="text-2xl font-black tracking-tighter uppercase bg-primary text-white px-3 py-1 transform -rotate-1 inline-block rounded-xl">
               RupaStyle
             </h2>
             <p className="font-medium text-muted-foreground mt-2 max-w-sm">Elevating your everyday style with modern and comfortable fashion.</p>

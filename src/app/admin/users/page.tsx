@@ -34,7 +34,7 @@ export default async function AdminUsersPage() {
         <p className="text-muted-foreground font-bold italic mt-1">Daftar user yang terdaftar</p>
       </header>
 
-      <section className="bg-white border-4 border-foreground p-6 shadow-[10px_10px_0_0_rgba(0,0,0,1)] rounded-2xl">
+      <section className="bg-white border-4 border-foreground p-6 shadow-[10px_10px_0_0_rgba(0,0,0,1)] rounded-xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-black uppercase tracking-tight">All Users</h2>
           <div className="text-xs font-black uppercase text-muted-foreground tracking-widest">
@@ -66,7 +66,7 @@ export default async function AdminUsersPage() {
                     </td>
                     <td className="py-4 pr-4 text-muted-foreground">{u.phone || "-"}</td>
                     <td className="py-4 pr-4">
-                      <span className="inline-flex items-center px-2 py-1 text-[10px] font-black uppercase border border-foreground">
+                      <span className="inline-flex items-center px-2 py-1 text-[10px] font-black uppercase border border-foreground rounded-xl">
                         {u.is_admin ? "admin" : "user"}
                       </span>
                     </td>
@@ -86,4 +86,3 @@ export default async function AdminUsersPage() {
     </div>
   )
 }
-

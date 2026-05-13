@@ -23,7 +23,7 @@ export default async function AdminNewProductPage() {
         <div className="space-y-2">
           <Link
             href="/admin/products"
-            className="inline-flex items-center gap-2 border-2 border-foreground bg-white px-4 py-2 font-black uppercase text-xs shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+            className="inline-flex items-center gap-2 border-2 border-foreground bg-white px-4 py-2 font-black uppercase text-xs shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all rounded-xl"
           >
             <ArrowLeft size={16} />
             Back
@@ -36,7 +36,7 @@ export default async function AdminNewProductPage() {
       </header>
 
       <form action={createProductAction}>
-        <div className="bg-white border-4 border-foreground shadow-[12px_12px_0_0_rgba(0,0,0,1)] p-8 space-y-8">
+        <div className="bg-white border-4 border-foreground shadow-[12px_12px_0_0_rgba(0,0,0,1)] p-8 space-y-8 rounded-xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
@@ -45,7 +45,7 @@ export default async function AdminNewProductPage() {
               <input
                 name="name"
                 required
-                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                 placeholder="Contoh: Midi Dress Satin"
               />
             </div>
@@ -57,7 +57,7 @@ export default async function AdminNewProductPage() {
               <input
                 name="slug"
                 required
-                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all font-mono"
+                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all font-mono rounded-xl"
                 placeholder="contoh: midi-dress-satin"
               />
             </div>
@@ -70,7 +70,7 @@ export default async function AdminNewProductPage() {
                 name="description"
                 required
                 rows={5}
-                className="w-full px-4 py-3 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                className="w-full px-4 py-3 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                 placeholder="Deskripsi singkat produk..."
               />
             </div>
@@ -84,7 +84,7 @@ export default async function AdminNewProductPage() {
                 type="number"
                 min={0}
                 required
-                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                 placeholder="Contoh: 279000"
               />
             </div>
@@ -98,7 +98,7 @@ export default async function AdminNewProductPage() {
                 type="number"
                 min={0}
                 required
-                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                 placeholder="Contoh: 25"
               />
             </div>
@@ -109,7 +109,7 @@ export default async function AdminNewProductPage() {
               </label>
               <select
                 name="categoryId"
-                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                 defaultValue=""
               >
                 <option value="">Uncategorized</option>
@@ -131,7 +131,7 @@ export default async function AdminNewProductPage() {
               <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
                 Status
               </label>
-              <label className="flex items-center gap-3 border-2 border-foreground px-4 h-12 font-black uppercase">
+              <label className="flex items-center gap-3 border-2 border-foreground px-4 h-12 font-black uppercase rounded-xl">
                 <input type="checkbox" name="isActive" defaultChecked className="h-5 w-5" />
                 Active
               </label>
@@ -143,7 +143,7 @@ export default async function AdminNewProductPage() {
               </label>
               <input
                 name="sizes"
-                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                 placeholder="S, M, L"
               />
             </div>
@@ -154,7 +154,7 @@ export default async function AdminNewProductPage() {
               </label>
               <input
                 name="colors"
-                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all"
+                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                 placeholder="Black, White"
               />
             </div>
@@ -167,7 +167,7 @@ export default async function AdminNewProductPage() {
                 name="image"
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
-                className="w-full border-2 border-foreground p-3 font-bold"
+                className="w-full border-2 border-foreground p-3 font-bold rounded-xl"
               />
             </div>
           </div>
@@ -175,13 +175,13 @@ export default async function AdminNewProductPage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-end">
             <Link
               href="/admin/products"
-              className="h-14 px-8 border-4 border-foreground bg-white text-foreground font-black uppercase text-lg shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all rounded-none inline-flex items-center justify-center"
+              className="h-14 px-8 border-4 border-foreground bg-white text-foreground font-black uppercase text-lg shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all rounded-xl inline-flex items-center justify-center"
             >
               Cancel
             </Link>
             <button
               type="submit"
-              className="h-14 px-8 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-none"
+              className="h-14 px-8 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl"
             >
               Save Product
             </button>

@@ -38,7 +38,7 @@ export default function CartClient() {
       </header>
 
       {items.length === 0 ? (
-        <div className="text-center py-24 border-4 border-dashed border-foreground/20 bg-white shadow-[8px_8px_0_0_rgba(0,0,0,0.05)]">
+        <div className="text-center py-24 border-4 border-dashed border-foreground/20 bg-white shadow-[8px_8px_0_0_rgba(0,0,0,0.05)] rounded-xl">
           <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-primary/20">
             <span className="text-4xl">🛒</span>
           </div>
@@ -46,7 +46,7 @@ export default function CartClient() {
           <p className="text-muted-foreground font-bold mb-8 max-w-md mx-auto">
             Yuk, mulai belanja produk fashion pria terbaik untuk gaya maksimal lo.
           </p>
-          <Button asChild size="lg" className="h-14 px-10 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-none">
+          <Button asChild size="lg" className="h-14 px-10 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl">
             <Link href="/#koleksi">Mulai Belanja</Link>
           </Button>
         </div>
@@ -54,7 +54,7 @@ export default function CartClient() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           {/* List Items */}
           <div className="lg:col-span-8 space-y-6">
-            <div className="bg-white border-4 border-foreground shadow-[8px_8px_0_0_rgba(0,0,0,1)] divide-y-4 divide-foreground/5 overflow-hidden">
+            <div className="bg-white border-4 border-foreground shadow-[8px_8px_0_0_rgba(0,0,0,1)] divide-y-4 divide-foreground/5 overflow-hidden rounded-xl">
               {items.map((item) => (
                 <CartItem key={item.id} item={item as any} />
               ))}
@@ -67,7 +67,7 @@ export default function CartClient() {
 
           {/* Summary */}
           <div className="lg:col-span-4 sticky top-32">
-            <div className="bg-white border-4 border-foreground p-8 shadow-[12px_12px_0_0_rgba(0,0,0,1)]">
+            <div className="bg-white border-4 border-foreground p-8 shadow-[12px_12px_0_0_rgba(0,0,0,1)] rounded-xl">
               <h2 className="text-2xl font-black uppercase tracking-tight mb-8 border-b-4 border-foreground pb-4">
                 Ringkasan Pesanan
               </h2>
@@ -88,7 +88,7 @@ export default function CartClient() {
               </div>
 
               <Button 
-                className="w-full h-16 border-4 border-foreground bg-primary text-white font-black uppercase text-xl shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-none" 
+                className="w-full h-16 border-4 border-foreground bg-primary text-white font-black uppercase text-xl shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl" 
                 asChild
               >
                 <Link href="/checkout">Checkout Sekarang</Link>

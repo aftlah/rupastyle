@@ -20,7 +20,7 @@ export default function WhatsAppChat() {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-3 rounded-full border border-border bg-card px-4 py-3 shadow-sm hover:shadow-md transition-shadow"
+      className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm hover:shadow-md transition-shadow"
       aria-label="Chat WhatsApp"
       title="Chat WhatsApp"
     >

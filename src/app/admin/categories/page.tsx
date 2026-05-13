@@ -39,13 +39,13 @@ export default async function AdminCategoriesPage() {
         </div>
         <Link
           href="/admin/categories/new"
-          className="h-14 px-8 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-none inline-flex items-center justify-center"
+          className="h-14 px-8 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl inline-flex items-center justify-center"
         >
           <Plus size={24} className="mr-2" /> Add Category
         </Link>
       </div>
 
-      <div className="bg-white border-4 border-foreground shadow-[12px_12px_0_0_rgba(0,0,0,1)] overflow-hidden">
+      <div className="bg-white border-4 border-foreground shadow-[12px_12px_0_0_rgba(0,0,0,1)] overflow-hidden rounded-xl">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>

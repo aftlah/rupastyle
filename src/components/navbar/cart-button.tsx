@@ -30,7 +30,7 @@ export default function CartButton({ initialCount }: CartButtonProps) {
   return (
     <Link 
       href="/cart" 
-      className={`relative group flex items-center gap-2 px-4 py-2 border-4 border-transparent hover:border-primary transition-all rounded-none ${isWobbling ? 'animate-cart-wobble border-primary bg-primary/10' : ''}`}
+      className={`relative group flex items-center gap-2 px-4 py-2 border-4 border-transparent hover:border-primary transition-all rounded-xl ${isWobbling ? 'animate-cart-wobble border-primary bg-primary/10' : ''}`}
     >
       <div className="relative">
         <ShoppingBasket className={`w-7 h-7 transition-transform ${isWobbling ? 'scale-110' : 'group-hover:scale-110'}`} />

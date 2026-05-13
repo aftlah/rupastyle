@@ -66,7 +66,7 @@ export default function PaymentButton({ snapToken }: PaymentButtonProps) {
     <Button
       onClick={handlePay}
       disabled={!isScriptLoaded}
-      className="w-full h-14 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-none mt-4"
+      className="w-full h-14 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl mt-4"
     >
       {isScriptLoaded ? '⚡ Bayar Sekarang' : 'Memuat Snap...'}
     </Button>

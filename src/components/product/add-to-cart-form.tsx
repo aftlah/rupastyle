@@ -64,7 +64,7 @@ export default function AddToCartForm({ product }: AddToCartFormProps) {
                 key={size}
                 type="button"
                 onClick={() => setSelectedSize(size)}
-                className={`min-w-[50px] h-12 px-4 border-4 font-black transition-all ${
+                className={`min-w-[50px] h-12 px-4 border-4 font-black transition-all rounded-xl ${
                   selectedSize === size
                     ? 'border-primary bg-primary text-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] -translate-x-1 -translate-y-1'
                     : 'border-foreground bg-white hover:bg-gray-50'
@@ -90,7 +90,7 @@ export default function AddToCartForm({ product }: AddToCartFormProps) {
                 key={color}
                 type="button"
                 onClick={() => setSelectedColor(color)}
-                className={`h-12 px-6 border-4 font-black transition-all uppercase text-sm ${
+                className={`h-12 px-6 border-4 font-black transition-all uppercase text-sm rounded-xl ${
                   selectedColor === color
                     ? 'border-primary bg-primary text-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] -translate-x-1 -translate-y-1'
                     : 'border-foreground bg-white hover:bg-gray-50'
@@ -106,7 +106,7 @@ export default function AddToCartForm({ product }: AddToCartFormProps) {
       {/* Quantity and CTA */}
       <div className="pt-4 flex flex-col sm:flex-row gap-4 items-center">
         {/* Quantity Controller */}
-        <div className="flex items-center border-4 border-foreground bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] h-16 w-full sm:w-auto">
+        <div className="flex items-center border-4 border-foreground bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] h-16 w-full sm:w-auto rounded-xl overflow-hidden">
           <Button
             type="button"
             size="icon"
@@ -134,7 +134,7 @@ export default function AddToCartForm({ product }: AddToCartFormProps) {
         <div className="flex-1 w-full">
           <Button 
             type="submit" 
-            className={`w-full h-16 border-4 border-foreground font-black uppercase text-xl transition-all relative overflow-hidden group shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] rounded-none ${
+            className={`w-full h-16 border-4 border-foreground font-black uppercase text-xl transition-all relative overflow-hidden group shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] rounded-xl ${
               isAdded ? 'bg-green-500 text-white' : 'bg-primary text-white'
             }`}
             disabled={isAdded || isLoading}
@@ -156,7 +156,7 @@ export default function AddToCartForm({ product }: AddToCartFormProps) {
       {/* Toast Notification (Simple CSS Version) */}
       {isAdded && (
         <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[60] animate-in fade-in slide-in-from-bottom-10 duration-500">
-          <div className="bg-foreground text-white px-8 py-4 border-4 border-primary shadow-[8px_8px_0_0_rgba(255,255,255,0.2)] font-black uppercase tracking-widest flex items-center gap-4">
+          <div className="bg-foreground text-white px-8 py-4 border-4 border-primary shadow-[8px_8px_0_0_rgba(255,255,255,0.2)] font-black uppercase tracking-widest flex items-center gap-4 rounded-xl">
             <span className="text-2xl">⚡</span>
             Produk berhasil masuk keranjang!
           </div>

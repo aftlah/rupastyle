@@ -29,7 +29,7 @@ export default async function AdminLayout({
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r-4 border-foreground hidden md:flex flex-col sticky top-0 h-screen z-20">
         <div className="p-6 border-b-4 border-foreground bg-primary/5">
-          <Link href="/admin" className="text-2xl font-black uppercase tracking-tighter bg-primary text-white px-4 py-2 border-4 border-foreground shadow-[4px_4px_0_0_rgba(0,0,0,1)] inline-block transform -rotate-2 hover:rotate-0 transition-transform">
+          <Link href="/admin" className="text-2xl font-black uppercase tracking-tighter bg-primary text-white px-4 py-2 border-4 border-foreground shadow-[4px_4px_0_0_rgba(0,0,0,1)] inline-block transform -rotate-2 hover:rotate-0 transition-transform rounded-xl">
             Admin CMS
           </Link>
         </div>
@@ -48,7 +48,7 @@ export default async function AdminLayout({
 
         <div className="p-4 border-t-4 border-foreground">
           <form action="/api/auth/logout" method="POST">
-            <button className="w-full flex items-center gap-3 px-4 py-3 font-black uppercase text-sm hover:bg-red-50 text-red-600 transition-colors border-2 border-transparent hover:border-red-600">
+            <button className="w-full flex items-center gap-3 px-4 py-3 font-black uppercase text-sm hover:bg-red-50 text-red-600 transition-colors border-2 border-transparent hover:border-red-600 rounded-xl">
               <LogOut size={18} />
               Logout
             </button>
@@ -83,7 +83,7 @@ function AdminNavLink({ href, icon, label }: { href: string; icon: React.ReactNo
   return (
     <Link 
       href={href} 
-      className="flex items-center gap-3 px-4 py-3 font-black uppercase text-sm transition-all border-2 border-transparent hover:border-foreground hover:bg-white hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1"
+      className="flex items-center gap-3 px-4 py-3 font-black uppercase text-sm transition-all border-2 border-transparent hover:border-foreground hover:bg-white hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 rounded-xl"
     >
       {icon}
       {label}

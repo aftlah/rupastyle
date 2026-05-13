@@ -10,7 +10,7 @@ export default function Loading() {
       <h2 className="mt-4 text-2xl font-black uppercase tracking-tighter text-foreground">
         RupaStyle...
       </h2>
-      <div className="mt-2 h-2 w-48 overflow-hidden rounded-full border-2 border-foreground bg-secondary">
+      <div className="mt-2 h-2 w-48 overflow-hidden rounded-xl border-2 border-foreground bg-secondary">
         <div className="h-full w-1/3 animate-[loading_1.5s_infinite_linear] bg-primary" />
       </div>
     </div>

@@ -12,7 +12,7 @@ export default function NotFound() {
     <div className="min-h-[70vh] flex items-center justify-center px-4">
       <Card className="w-full max-w-xl border border-border shadow-sm">
         <CardHeader className="text-center space-y-3">
-          <div className="mx-auto w-fit rounded-full border border-border bg-muted px-4 py-2">
+          <div className="mx-auto w-fit rounded-xl border border-border bg-muted px-4 py-2">
             <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">
               Error 404
             </span>
@@ -25,7 +25,7 @@ export default function NotFound() {
           </p>
         </CardHeader>
         <CardContent className="grid gap-3">
-          <div className="rounded-lg border border-border bg-card p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <p className="text-sm font-bold text-foreground">Saran cepat:</p>
             <ul className="mt-2 text-sm text-muted-foreground list-disc pl-5 space-y-1">
               <li>Cek kembali URL yang Anda masukkan.</li>
@@ -46,4 +46,3 @@ export default function NotFound() {
     </div>
   )
 }
-

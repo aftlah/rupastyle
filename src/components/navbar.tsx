@@ -1,17 +1,26 @@
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { logout } from "@/lib/actions/auth"
-import { Button } from "./ui/button"
 import CartButton from "./navbar/cart-button"
 import { getCartCount } from "@/lib/cart"
+import { UserAvatarDropdown } from "@/components/user-avatar-dropdown"
 
 export default async function Navbar() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
   let cartCount = 0
+  let isAdmin = false
+  let displayName = ""
   if (user) {
     cartCount = await getCartCount(user.id)
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_admin, full_name")
+      .eq("id", user.id)
+      .maybeSingle()
+    isAdmin = Boolean(profile?.is_admin)
+    displayName = (profile?.full_name ?? "").trim() || (user.email?.split("@")[0] ?? "")
   }
 
   return (
@@ -22,7 +31,7 @@ export default async function Navbar() {
           <div className="flex-shrink-0">
             <Link 
               href="/" 
-              className="inline-block text-3xl md:text-4xl font-black tracking-tighter uppercase bg-primary text-white px-5 py-2 border-4 border-foreground shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-sm transform -rotate-3 hover:rotate-0"
+              className="inline-block text-3xl md:text-4xl font-black tracking-tighter uppercase bg-primary text-white px-5 py-2 border-4 border-foreground shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl transform -rotate-3 hover:rotate-0"
             >
               RupaStyle
             </Link>
@@ -47,27 +56,23 @@ export default async function Navbar() {
             {/* AUTH ACTIONS */}
             <div className="flex items-center gap-4">
               {user ? (
-                <div className="flex items-center gap-4">
-                  <span className="hidden lg:inline-block text-sm font-black bg-primary/10 text-primary px-4 py-2 border-2 border-primary/20 rounded-md truncate max-w-[150px]">
-                    {user.email?.split('@')[0]}
-                  </span>
-                  <form action={logout}>
-                    <Button variant="outline" size="lg" className="border-4 border-foreground font-black uppercase bg-white text-foreground hover:bg-foreground hover:text-white transition-colors h-14 px-8 text-lg shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
-                      Logout
-                    </Button>
-                  </form>
-                </div>
+                <UserAvatarDropdown
+                  name={displayName || "User"}
+                  email={user.email ?? ""}
+                  isAdmin={isAdmin}
+                  logoutAction={logout}
+                />
               ) : (
                 <div className="flex items-center gap-4">
                   <Link 
                     href="/login" 
-                    className="border-4 border-foreground px-6 py-3 text-lg font-black uppercase text-foreground hover:bg-foreground hover:text-white transition-colors bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
+                    className="border-4 border-foreground px-6 py-3 text-lg font-black uppercase text-foreground hover:bg-foreground hover:text-white transition-colors bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-xl"
                   >
                     Login
                   </Link>
                   <Link 
                     href="/register" 
-                    className="hidden md:inline-block border-4 border-foreground bg-primary text-white px-6 py-3 text-lg font-black uppercase hover:bg-primary/90 transition-colors shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
+                    className="hidden md:inline-block border-4 border-foreground bg-primary text-white px-6 py-3 text-lg font-black uppercase hover:bg-primary/90 transition-colors shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-xl"
                   >
                     Join
                   </Link>

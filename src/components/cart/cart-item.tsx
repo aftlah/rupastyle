@@ -16,7 +16,7 @@ export default function CartItem({ item }: CartItemProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-6 p-6 group transition-colors hover:bg-primary/5">
       {/* Product Image */}
-      <div className="relative w-full sm:w-32 aspect-square border-4 border-foreground bg-background overflow-hidden flex-shrink-0 shadow-[4px_4px_0_0_rgba(0,0,0,1)] group-hover:shadow-none group-hover:translate-x-[2px] group-hover:translate-y-[2px] transition-all">
+      <div className="relative w-full sm:w-32 aspect-square border-4 border-foreground bg-background overflow-hidden flex-shrink-0 shadow-[4px_4px_0_0_rgba(0,0,0,1)] group-hover:shadow-none group-hover:translate-x-[2px] group-hover:translate-y-[2px] transition-all rounded-xl">
         {item.image ? (
           <Link href={`/products/${item.productId}`}>
             <Image
@@ -70,7 +70,7 @@ export default function CartItem({ item }: CartItemProps) {
       {/* Actions */}
       <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between gap-4">
         {/* Quantity Controller */}
-        <div className="flex items-center border-4 border-foreground bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] h-12">
+        <div className="flex items-center border-4 border-foreground bg-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] h-12 rounded-xl overflow-hidden">
           <Button 
             onClick={() => updateQuantity(item.id, item.quantity - 1)}
             size="icon" 
@@ -103,7 +103,7 @@ export default function CartItem({ item }: CartItemProps) {
             onClick={() => removeItem(item.id)}
             size="icon" 
             variant="destructive" 
-            className="h-12 w-12 border-4 border-foreground shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all rounded-none"
+            className="h-12 w-12 border-4 border-foreground shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all rounded-xl"
             title="Hapus"
           >
             <Trash2 className="w-5 h-5" />

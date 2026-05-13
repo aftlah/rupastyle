@@ -24,7 +24,7 @@ export default async function OutfitBuilderPage() {
     <div className="bg-background min-h-screen">
       <div className="max-w-7xl mx-auto py-16 px-4">
         <header className="mb-16 text-center max-w-3xl mx-auto">
-          <div className="inline-block border-2 border-foreground bg-white px-6 py-2 mb-6 transform rotate-1 shadow-[4px_4px_0_0_rgba(0,0,0,1)]">
+          <div className="inline-block border-2 border-foreground bg-white px-6 py-2 mb-6 transform rotate-1 shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-xl">
             <span className="text-sm font-bold uppercase tracking-widest text-primary">Interactive Tool</span>
           </div>
           <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tight text-foreground mb-4">

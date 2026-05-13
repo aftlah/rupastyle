@@ -12,7 +12,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link href={`/products/${product.slug}`} className="group block">
-      <div className="border-2 border-foreground bg-white overflow-hidden transition-all shadow-[4px_4px_0_0_rgba(0,0,0,0.9)] hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.9)] hover:-translate-y-2 h-full flex flex-col rounded-md">
+      <div className="border-2 border-foreground bg-white overflow-hidden transition-all shadow-[4px_4px_0_0_rgba(0,0,0,0.9)] hover:shadow-[8px_8px_0_0_rgba(0,0,0,0.9)] hover:-translate-y-2 h-full flex flex-col rounded-xl">
         <div className="relative aspect-square overflow-hidden bg-background border-b-2 border-foreground p-4">
           {primaryImage ? (
             <Image
@@ -30,7 +30,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
         <div className="p-5 flex-1 flex flex-col bg-white">
           {product.category && (
-            <span className="inline-block border border-foreground bg-primary/10 text-primary text-xs font-bold uppercase px-3 py-1 mb-3 self-start rounded-full">
+            <span className="inline-block border border-foreground bg-primary/10 text-primary text-xs font-bold uppercase px-3 py-1 mb-3 self-start rounded-xl">
               {product.category.name}
             </span>
           )}

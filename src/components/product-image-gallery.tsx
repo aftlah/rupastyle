@@ -15,7 +15,7 @@ export default function ProductImageGallery({ images }: ProductImageGalleryProps
 
   if (images.length === 0) {
     return (
-      <div className="aspect-square bg-muted flex items-center justify-center rounded-lg">
+      <div className="aspect-square bg-muted flex items-center justify-center rounded-xl">
         <span className="text-muted-foreground">No Image</span>
       </div>
     )
@@ -23,7 +23,7 @@ export default function ProductImageGallery({ images }: ProductImageGalleryProps
 
   return (
     <div className="space-y-4">
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
+      <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
         {selectedImage && (
           <Image
             src={selectedImage.image_url}
@@ -39,7 +39,7 @@ export default function ProductImageGallery({ images }: ProductImageGalleryProps
           <button
             key={image.id}
             onClick={() => setSelectedImage(image)}
-            className={`relative aspect-square overflow-hidden rounded-md border-2 ${
+            className={`relative aspect-square overflow-hidden rounded-xl border-2 ${
               selectedImage?.id === image.id
                 ? 'border-primary'
                 : 'border-transparent hover:border-border'
