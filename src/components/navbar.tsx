@@ -70,12 +70,6 @@ export default async function Navbar() {
                   >
                     Login
                   </Link>
-                  <Link 
-                    href="/register" 
-                    className="hidden md:inline-block border-4 border-foreground bg-primary text-white px-6 py-3 text-lg font-black uppercase hover:bg-primary/90 transition-colors shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-xl"
-                  >
-                    Join
-                  </Link>
                 </div>
               )}
             </div>
