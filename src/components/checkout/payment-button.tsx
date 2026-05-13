@@ -17,6 +17,7 @@ interface PaymentButtonProps {
 
 export default function PaymentButton({ snapToken }: PaymentButtonProps) {
   const [isScriptLoaded, setIsScriptLoaded] = useState(false)
+  const [isPaying, setIsPaying] = useState(false)
 
   useEffect(() => {
     const existingScript = document.querySelector('script[src="https://app.sandbox.midtrans.com/snap/snap.js"]')
@@ -44,6 +45,7 @@ export default function PaymentButton({ snapToken }: PaymentButtonProps) {
 
   const handlePay = () => {
     if (window.snap && isScriptLoaded) {
+      setIsPaying(true)
       window.snap.pay(snapToken, {
         onSuccess: function (result: any) {
           console.log('Payment success:', result)
@@ -51,12 +53,15 @@ export default function PaymentButton({ snapToken }: PaymentButtonProps) {
         },
         onPending: function (result: any) {
           console.log('Payment pending:', result)
+          setIsPaying(false)
         },
         onError: function (result: any) {
           console.log('Payment error:', result)
+          setIsPaying(false)
         },
         onClose: function () {
           console.log('Customer closed the popup without finishing the payment')
+          setIsPaying(false)
         },
       })
     }
@@ -65,7 +70,8 @@ export default function PaymentButton({ snapToken }: PaymentButtonProps) {
   return (
     <Button
       onClick={handlePay}
-      disabled={!isScriptLoaded}
+      isLoading={isPaying}
+      disabled={!isScriptLoaded || isPaying}
       className="w-full h-14 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl mt-4"
     >
       {isScriptLoaded ? '⚡ Bayar Sekarang' : 'Memuat Snap...'}

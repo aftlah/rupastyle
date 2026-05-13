@@ -67,6 +67,7 @@ export async function createOrder(
     customerName: string
     customerPhone: string
     note?: string
+    origin?: string
   }
 ): Promise<Order> {
   const supabase = await createClient()
@@ -90,6 +91,7 @@ export async function createOrder(
   const customerName = details.customerName?.trim() || (userData.user.email?.split('@')[0] || 'Customer')
   const customerEmail = userData.user.email || ''
   const customerPhone = details.customerPhone?.trim() || ''
+  const origin = details.origin?.trim() || ''
   const shippingLabel = getShippingLabel(details.shippingMethod)
   const shippingAddress = details.shippingAddress?.trim() || ''
   const note = details.note?.trim() || ''
@@ -150,11 +152,14 @@ export async function createOrder(
   let snapRedirectUrl: string | null = null
 
   try {
+    const finishUrl = origin ? `${origin}/order-success?order_id=${encodeURIComponent(order.id)}` : undefined
     const midtransResponse = await generateSnapToken({
       orderId: orderNumber,
       grossAmount: grossAmount,
       customerName: customerName,
       customerEmail: customerEmail,
+      customerPhone: customerPhone,
+      finishUrl,
     })
     snapToken = midtransResponse.token
     snapRedirectUrl = midtransResponse.redirect_url

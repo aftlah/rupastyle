@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createOrder } from '@/lib/checkout'
+import { headers } from 'next/headers'
 
 export async function checkoutAction(formData: FormData) {
   const supabase = await createClient()
@@ -29,6 +30,11 @@ export async function checkoutAction(formData: FormData) {
     redirect('/checkout?error=Lengkapi data penerima dan alamat pengiriman')
   }
 
+  const h = await headers()
+  const origin =
+    h.get("origin") ??
+    `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}`
+
   let redirectUrl = ''
   try {
     const order = await createOrder(user.id, items, {
@@ -37,15 +43,12 @@ export async function checkoutAction(formData: FormData) {
       customerName,
       customerPhone,
       note,
+      origin,
     })
     revalidatePath('/cart')
     revalidatePath('/checkout')
-    
-    if (order.snap_redirect_url) {
-      redirectUrl = order.snap_redirect_url
-    } else {
-      redirectUrl = `/order-success?order_id=${order.id}`
-    }
+
+    redirectUrl = `/order-success?order_id=${order.id}`
   } catch (error) {
     if (error instanceof Error && error.message === 'NEXT_REDIRECT') throw error
     console.error('Checkout error:', error)

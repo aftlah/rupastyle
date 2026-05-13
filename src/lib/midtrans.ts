@@ -11,12 +11,14 @@ export async function generateSnapToken({
   customerName,
   customerEmail,
   customerPhone,
+  finishUrl,
 }: {
   orderId: string
   grossAmount: number
   customerName?: string
   customerEmail: string
   customerPhone?: string
+  finishUrl?: string
 }): Promise<MidtransSnapResponse> {
   const serverKey = process.env.MIDTRANS_SERVER_KEY?.trim()
 
@@ -42,6 +44,7 @@ export async function generateSnapToken({
         email: customerEmail,
         phone: customerPhone,
       },
+      ...(finishUrl ? { callbacks: { finish: finishUrl } } : {}),
     }),
   })
 
