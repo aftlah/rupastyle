@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { requestPasswordReset } from "@/lib/actions/auth"
-import { Button } from "@/components/ui/button"
+import { FormSubmitButton } from "@/components/form-submit-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
@@ -52,12 +52,11 @@ export default async function ForgotPasswordPage({
             />
           </div>
 
-          <Button
-            type="submit"
+          <FormSubmitButton
             className="w-full h-14 border-4 border-foreground bg-primary text-white font-black uppercase text-xl shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl mt-4"
           >
             Kirim Link Reset
-          </Button>
+          </FormSubmitButton>
         </form>
 
         <div className="mt-10 text-center border-t-4 border-foreground/10 pt-6">

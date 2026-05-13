@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { setUserPasswordAction, setUserRoleAction } from "@/lib/actions/admin"
+import { FormSubmitButton } from "@/components/form-submit-button"
 
 type UserActionsPopoverProps = {
   userId: string
@@ -120,21 +121,21 @@ export function UserActionsPopover({ userId, defaultRole, allowRoleChange = true
               <form action={setUserRoleAction} className="flex-1">
                 <input type="hidden" name="userId" value={userId} />
                 <input type="hidden" name="role" value="user" />
-                <button
-                  type="submit"
+                <FormSubmitButton
+                  variant="ghost"
                   className={[
                     "w-full h-10 border-2 border-foreground font-black uppercase text-xs rounded-xl transition-colors",
                     defaultRole === "user" ? "bg-primary/10" : "bg-white hover:bg-primary/5",
                   ].join(" ")}
                 >
                   Jadikan User
-                </button>
+                </FormSubmitButton>
               </form>
               <form action={setUserRoleAction} className="flex-1">
                 <input type="hidden" name="userId" value={userId} />
                 <input type="hidden" name="role" value="admin" />
-                <button
-                  type="submit"
+                <FormSubmitButton
+                  variant="ghost"
                   className={[
                     "w-full h-10 border-2 border-foreground font-black uppercase text-xs rounded-xl transition-colors",
                     defaultRole === "admin"
@@ -143,7 +144,7 @@ export function UserActionsPopover({ userId, defaultRole, allowRoleChange = true
                   ].join(" ")}
                 >
                   Jadikan Admin
-                </button>
+                </FormSubmitButton>
               </form>
             </div>
           </div>
@@ -168,12 +169,12 @@ export function UserActionsPopover({ userId, defaultRole, allowRoleChange = true
             className="w-full h-10 px-3 border-2 border-foreground font-bold bg-white rounded-xl"
             required
           />
-          <button
-            type="submit"
+          <FormSubmitButton
+            variant="ghost"
             className="w-full h-10 border-2 border-foreground bg-primary text-white font-black uppercase text-xs hover:bg-primary/90 transition-colors rounded-xl"
           >
             Simpan Password
-          </button>
+          </FormSubmitButton>
         </form>
       </details>
     </div>

@@ -1,8 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { formatCurrency } from "@/lib/utils"
+import { FormSubmitButton } from "@/components/form-submit-button"
 import Link from "next/link"
-import { Plus, Edit, Trash2, Search, Filter, Image as ImageIcon } from "lucide-react"
+import { Plus, Edit, Trash2, Search, Filter, Image as ImageIcon, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { deleteProductAction } from "@/lib/actions/admin"
 
@@ -141,15 +142,15 @@ export default async function AdminProductsPage({
                         </Button>
                         <form action={deleteProductAction}>
                           <input type="hidden" name="productId" value={product.id} />
-                          <Button
-                            type="submit"
-                            size="icon"
-                            variant="ghost"
+                          <FormSubmitButton
                             className="h-10 w-10 border-2 border-foreground hover:bg-red-500 hover:text-white hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] transition-all rounded-xl text-red-600"
                             title="Hapus"
+                            size="icon"
+                            variant="ghost"
+                            pendingChildren={<Loader2 size={18} className="animate-spin" />}
                           >
                             <Trash2 size={18} />
-                          </Button>
+                          </FormSubmitButton>
                         </form>
                       </div>
                     </td>

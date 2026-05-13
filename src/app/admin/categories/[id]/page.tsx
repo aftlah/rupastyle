@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react"
 
 import { createAdminClient } from "@/lib/supabase/admin"
 import { updateCategoryAction } from "@/lib/actions/admin"
+import { FormSubmitButton } from "@/components/form-submit-button"
 
 export const metadata = {
   title: "Edit Category - Admin | RupaStyle",
@@ -135,16 +136,12 @@ export default async function AdminEditCategoryPage({
             >
               Cancel
             </Link>
-            <button
-              type="submit"
-              className="h-14 px-8 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl"
-            >
+            <FormSubmitButton className="h-14 px-8 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:bg-primary/90 hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl">
               Save Changes
-            </button>
+            </FormSubmitButton>
           </div>
         </div>
       </form>
     </div>
   )
 }
-

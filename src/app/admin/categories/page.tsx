@@ -1,8 +1,9 @@
 import Link from "next/link"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { deleteCategoryAction } from "@/lib/actions/admin"
+import { FormSubmitButton } from "@/components/form-submit-button"
 import { Button } from "@/components/ui/button"
-import { Edit, Plus, Trash2 } from "lucide-react"
+import { Edit, Loader2, Plus, Trash2 } from "lucide-react"
 
 type CategoryRow = {
   id: string
@@ -114,15 +115,15 @@ export default async function AdminCategoriesPage({
                           </Button>
                           <form action={deleteCategoryAction}>
                             <input type="hidden" name="categoryId" value={c.id} />
-                            <Button
-                              type="submit"
-                              size="icon"
-                              variant="ghost"
+                            <FormSubmitButton
                               className="h-10 w-10 border-2 border-foreground hover:bg-red-500 hover:text-white hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] transition-all rounded-xl text-red-600"
                               title="Hapus"
+                              size="icon"
+                              variant="ghost"
+                              pendingChildren={<Loader2 size={18} className="animate-spin" />}
                             >
                               <Trash2 size={18} />
-                            </Button>
+                            </FormSubmitButton>
                           </form>
                         </div>
                       </div>

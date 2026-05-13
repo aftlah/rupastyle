@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { register } from "@/lib/actions/auth"
-import { Button } from "@/components/ui/button"
+import { FormSubmitButton } from "@/components/form-submit-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
@@ -16,7 +16,7 @@ export default async function RegisterPage({
       <div className="w-full max-w-md border-4 border-foreground bg-white p-8 md:p-12 shadow-[12px_12px_0_0_rgba(0,0,0,1)] rounded-xl">
         <div className="text-center mb-10">
           <h1 className="text-4xl font-black uppercase tracking-tighter mb-2">Daftar</h1>
-          <p className="text-muted-foreground font-bold italic">B uat akun RupaStyle baru Anda</p>
+          <p className="text-muted-foreground font-bold italic">Buat akun RupaStyle baru Anda</p>
         </div>
 
         {error && (
@@ -59,12 +59,11 @@ export default async function RegisterPage({
               className="h-14 border-4 border-foreground rounded-xl px-4 text-lg focus-visible:ring-primary focus-visible:ring-offset-0"
             />
           </div>
-          <Button 
-            type="submit" 
+          <FormSubmitButton
             className="w-full h-14 border-4 border-foreground bg-primary text-white font-black uppercase text-xl shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl mt-4"
           >
             Daftar Sekarang
-          </Button>
+          </FormSubmitButton>
         </form>
         
         <div className="mt-10 text-center border-t-4 border-foreground/10 pt-6">

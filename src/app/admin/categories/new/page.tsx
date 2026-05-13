@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createCategoryAction } from "@/lib/actions/admin"
+import { FormSubmitButton } from "@/components/form-submit-button"
 import { ArrowLeft } from "lucide-react"
 
 export const metadata = {
@@ -109,12 +110,9 @@ export default async function AdminNewCategoryPage({
             >
               Cancel
             </Link>
-            <button
-              type="submit"
-              className="h-14 px-8 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl"
-            >
+            <FormSubmitButton className="h-14 px-8 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:bg-primary/90 hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl">
               Save Category
-            </button>
+            </FormSubmitButton>
           </div>
         </div>
       </form>
