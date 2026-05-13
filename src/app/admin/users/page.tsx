@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
-import { setUserRoleAction } from "@/lib/actions/admin"
+import { createAdminClient } from "@/lib/supabase/admin"
+import { UserActionsPopover } from "@/components/admin/user-actions-popover"
 
 type AdminUserRow = {
   id: string
@@ -13,21 +14,57 @@ export const metadata = {
   title: "Users - Admin | RupaStyle",
 }
 
-export default async function AdminUsersPage() {
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; message?: string }>
+}) {
+  const { error: errorMessage, message } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: users, error } = await supabase
-    .from("profiles")
-    .select("id, full_name, phone, is_admin, created_at")
-    .order("created_at", { ascending: false })
-    .limit(100)
+  const admin = createAdminClient()
+  const { data: usersData, error: usersError } = await admin.auth.admin.listUsers({
+    page: 1,
+    perPage: 200,
+  })
 
-  if (error) {
-    throw error
-  }
+  if (usersError) throw usersError
 
-  const rows = (users ?? []) as AdminUserRow[]
+  const authUsers = usersData?.users ?? []
+  const ids = authUsers.map((u) => u.id)
+
+  const { data: profiles, error: profilesError } = ids.length
+    ? await admin
+        .from("profiles")
+        .select("id, full_name, phone, is_admin, created_at")
+        .in("id", ids)
+        .limit(200)
+    : { data: [], error: null }
+
+  if (profilesError) throw profilesError
+
+  const profileById = new Map<string, AdminUserRow>(
+    ((profiles ?? []) as AdminUserRow[]).map((p) => [p.id, p])
+  )
+
+  const rows = authUsers
+    .map((u) => {
+      const profile = profileById.get(u.id) ?? null
+      return {
+        id: u.id,
+        email: u.email ?? "",
+        full_name:
+          profile?.full_name ??
+          (typeof (u.user_metadata as any)?.full_name === "string"
+            ? ((u.user_metadata as any).full_name as string)
+            : null),
+        phone: profile?.phone ?? null,
+        is_admin: profile?.is_admin ?? false,
+        created_at: profile?.created_at ?? u.created_at,
+      }
+    })
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
   return (
     <div className="space-y-8">
@@ -35,6 +72,17 @@ export default async function AdminUsersPage() {
         <h1 className="text-4xl font-black uppercase tracking-tight">Users</h1>
         <p className="text-muted-foreground font-bold italic mt-1">Daftar user yang terdaftar</p>
       </header>
+
+      {typeof errorMessage === "string" && errorMessage ? (
+        <div className="border-2 border-destructive bg-destructive/10 text-destructive font-bold text-sm px-4 py-3 rounded-xl">
+          {errorMessage}
+        </div>
+      ) : null}
+      {typeof message === "string" && message ? (
+        <div className="border-2 border-primary bg-primary/10 text-primary font-bold text-sm px-4 py-3 rounded-xl">
+          {message}
+        </div>
+      ) : null}
 
       <section className="bg-white border-4 border-foreground p-6 shadow-[10px_10px_0_0_rgba(0,0,0,1)] rounded-xl">
         <div className="flex items-center justify-between mb-6">
@@ -54,6 +102,7 @@ export default async function AdminUsersPage() {
               <thead>
                 <tr className="text-left border-b-2 border-foreground/10">
                   <th className="py-3 pr-4 font-black uppercase text-[10px] tracking-widest text-muted-foreground">Name</th>
+                  <th className="py-3 pr-4 font-black uppercase text-[10px] tracking-widest text-muted-foreground">Email</th>
                   <th className="py-3 pr-4 font-black uppercase text-[10px] tracking-widest text-muted-foreground">Phone</th>
                   <th className="py-3 pr-4 font-black uppercase text-[10px] tracking-widest text-muted-foreground">Role</th>
                   <th className="py-3 pr-4 font-black uppercase text-[10px] tracking-widest text-muted-foreground">User ID</th>
@@ -66,6 +115,9 @@ export default async function AdminUsersPage() {
                   <tr key={u.id} className="border-b border-foreground/10 hover:bg-primary/5 transition-colors">
                     <td className="py-4 pr-4">
                       <div className="font-bold">{u.full_name || "-"}</div>
+                    </td>
+                    <td className="py-4 pr-4 text-muted-foreground">
+                      {u.email ? <span className="font-bold">{u.email}</span> : "-"}
                     </td>
                     <td className="py-4 pr-4 text-muted-foreground">{u.phone || "-"}</td>
                     <td className="py-4 pr-4">
@@ -80,27 +132,13 @@ export default async function AdminUsersPage() {
                       {new Date(u.created_at).toLocaleString("id-ID")}
                     </td>
                     <td className="py-4">
-                      {user?.id === u.id ? (
-                        <div className="text-right text-xs font-bold text-muted-foreground">Tidak bisa ubah diri sendiri</div>
-                      ) : (
-                        <form action={setUserRoleAction} className="flex items-center justify-end gap-2">
-                          <input type="hidden" name="userId" value={u.id} />
-                          <select
-                            name="role"
-                            defaultValue={u.is_admin ? "admin" : "user"}
-                            className="h-10 px-3 border-2 border-foreground font-bold bg-white rounded-xl"
-                          >
-                            <option value="user">user</option>
-                            <option value="admin">admin</option>
-                          </select>
-                          <button
-                            type="submit"
-                            className="h-10 px-4 border-2 border-foreground bg-primary text-white font-black uppercase text-xs shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all rounded-xl"
-                          >
-                            Simpan
-                          </button>
-                        </form>
-                      )}
+                      <div className="flex justify-end">
+                        <UserActionsPopover
+                          userId={u.id}
+                          defaultRole={u.is_admin ? "admin" : "user"}
+                          allowRoleChange={user?.id !== u.id}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))}

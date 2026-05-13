@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { createClient } from '../supabase/server'
 
 export async function login(formData: FormData) {
@@ -54,6 +55,27 @@ export async function register(formData: FormData) {
 
   // If no session, usually means email confirmation is required
   return redirect('/login?message=Silakan cek email Anda untuk konfirmasi pendaftaran.')
+}
+
+export async function requestPasswordReset(formData: FormData) {
+  const supabase = await createClient()
+
+  const email = (formData.get("email") as string | null) ?? ""
+  if (!email.trim()) {
+    return redirect("/forgot-password?error=Email wajib diisi")
+  }
+
+  const h = await headers()
+  const origin =
+    h.get("origin") ??
+    `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}`
+
+  const redirectTo = `${origin}/auth/callback?next=/reset-password`
+
+  await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo })
+  return redirect(
+    "/forgot-password?message=Jika%20email%20terdaftar,%20link%20reset%20password%20sudah%20dikirim.%20Silakan%20cek%20inbox%20atau%20spam."
+  )
 }
 
 export async function logout() {

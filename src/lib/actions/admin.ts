@@ -218,20 +218,52 @@ export async function setUserRoleAction(formData: FormData) {
   const userId = (formData.get("userId") as string | null) ?? ""
   const role = (formData.get("role") as string | null) ?? ""
 
-  if (!userId.trim()) return
-  if (userId === user.id) return
+  if (!userId.trim()) {
+    redirect("/admin/users?error=User%20ID%20tidak%20valid")
+  }
+  if (userId === user.id) {
+    redirect("/admin/users?error=Tidak%20bisa%20mengubah%20role%20diri%20sendiri")
+  }
 
   const isAdmin = role === "admin"
-  if (role !== "admin" && role !== "user") return
+  if (role !== "admin" && role !== "user") {
+    redirect("/admin/users?error=Role%20tidak%20valid")
+  }
 
   const { error } = await supabase
     .from("profiles")
-    .update({ is_admin: isAdmin })
-    .eq("id", userId)
+    .upsert({ id: userId, is_admin: isAdmin }, { onConflict: "id" })
 
   if (error) throw error
 
   revalidatePath("/admin/users")
+  redirect("/admin/users?message=Role%20berhasil%20diupdate")
+}
+
+export async function setUserPasswordAction(formData: FormData) {
+  await checkAdmin()
+  const supabase = createAdminClient()
+
+  const userId = (formData.get("userId") as string | null) ?? ""
+  const password = (formData.get("password") as string | null) ?? ""
+
+  if (!userId.trim()) {
+    redirect("/admin/users?error=User%20ID%20tidak%20valid")
+  }
+  if (password.trim().length < 8) {
+    redirect("/admin/users?error=Password%20minimal%208%20karakter")
+  }
+
+  const { error } = await supabase.auth.admin.updateUserById(userId, {
+    password: password.trim(),
+  })
+
+  if (error) {
+    redirect(`/admin/users?error=${encodeURIComponent(error.message)}`)
+  }
+
+  revalidatePath("/admin/users")
+  redirect("/admin/users?message=Password%20berhasil%20diubah")
 }
 
 export async function getAdminStats() {
