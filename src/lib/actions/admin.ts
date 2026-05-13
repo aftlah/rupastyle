@@ -415,13 +415,18 @@ export async function getAdminStats() {
   const supabase = await createClient()
 
   // Total Sales
-  const { data: orders } = await supabase
+  const { data: orders, error: ordersError } = await supabase
     .from('orders')
-    .select('gross_amount, status, created_at')
-    .in('payment_status', ['paid', 'settlement'])
+    .select('gross_amount')
+    .eq('payment_status', 'paid')
 
-  const totalRevenue = orders?.reduce((sum, order) => sum + order.gross_amount, 0) || 0
-  const totalOrders = orders?.length || 0
+  if (ordersError) {
+    throw ordersError
+  }
+
+  const totalRevenue =
+    (orders ?? []).reduce((sum: number, order: any) => sum + (Number(order.gross_amount) || 0), 0) || 0
+  const totalOrders = (orders ?? []).length
 
   // Low stock products
   const { data: lowStockProducts } = await supabase

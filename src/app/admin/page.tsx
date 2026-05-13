@@ -72,7 +72,10 @@ export default async function AdminDashboard() {
                   <div className="text-right">
                     <p className="font-black text-sm">{formatCurrency(order.gross_amount)}</p>
                     <span className={`text-[10px] font-black uppercase px-2 py-0.5 border border-black ${
-                      order.payment_status === 'paid' || order.payment_status === 'settlement' ? 'bg-green-400' : 'bg-yellow-400'
+                      (order.payment_status ?? "").toString().trim().toLowerCase() === 'paid' ||
+                      (order.payment_status ?? "").toString().trim().toLowerCase() === 'settlement'
+                        ? 'bg-green-400'
+                        : 'bg-yellow-400'
                     }`}>
                       {order.payment_status}
                     </span>
