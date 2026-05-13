@@ -4,8 +4,14 @@ import { formatCurrency } from "@/lib/utils"
 import Link from "next/link"
 import { Plus, Edit, Trash2, Search, Filter, Image as ImageIcon } from "lucide-react"
 import Image from "next/image"
+import { deleteProductAction } from "@/lib/actions/admin"
 
-export default async function AdminProductsPage() {
+export default async function AdminProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; message?: string }>
+}) {
+  const { error: errorMessage, message } = await searchParams
   const supabase = await createClient()
   
   const { data: products } = await supabase
@@ -19,6 +25,17 @@ export default async function AdminProductsPage() {
 
   return (
     <div className="space-y-8">
+      {typeof errorMessage === "string" && errorMessage ? (
+        <div className="border-2 border-destructive bg-destructive/10 text-destructive font-bold text-sm px-4 py-3 rounded-xl">
+          {errorMessage}
+        </div>
+      ) : null}
+      {typeof message === "string" && message ? (
+        <div className="border-2 border-primary bg-primary/10 text-primary font-bold text-sm px-4 py-3 rounded-xl">
+          {message}
+        </div>
+      ) : null}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-4xl font-black uppercase tracking-tight">Product Catalog</h1>
@@ -122,9 +139,18 @@ export default async function AdminProductsPage() {
                             <Edit size={18} />
                           </Link>
                         </Button>
-                        <Button size="icon" variant="ghost" className="h-10 w-10 border-2 border-foreground hover:bg-red-500 hover:text-white hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] transition-all rounded-xl text-red-600">
-                          <Trash2 size={18} />
-                        </Button>
+                        <form action={deleteProductAction}>
+                          <input type="hidden" name="productId" value={product.id} />
+                          <Button
+                            type="submit"
+                            size="icon"
+                            variant="ghost"
+                            className="h-10 w-10 border-2 border-foreground hover:bg-red-500 hover:text-white hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] transition-all rounded-xl text-red-600"
+                            title="Hapus"
+                          >
+                            <Trash2 size={18} />
+                          </Button>
+                        </form>
                       </div>
                     </td>
                   </tr>

@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { createAdminClient } from "@/lib/supabase/admin"
-import { Plus } from "lucide-react"
+import { deleteCategoryAction } from "@/lib/actions/admin"
+import { Button } from "@/components/ui/button"
+import { Plus, Trash2 } from "lucide-react"
 
 type CategoryRow = {
   id: string
@@ -15,7 +17,12 @@ export const metadata = {
   title: "Categories - Admin | RupaStyle",
 }
 
-export default async function AdminCategoriesPage() {
+export default async function AdminCategoriesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; message?: string }>
+}) {
+  const { error: errorMessage, message } = await searchParams
   const supabase = createAdminClient()
 
   const { data, error } = await supabase
@@ -30,6 +37,17 @@ export default async function AdminCategoriesPage() {
 
   return (
     <div className="space-y-8">
+      {typeof errorMessage === "string" && errorMessage ? (
+        <div className="border-2 border-destructive bg-destructive/10 text-destructive font-bold text-sm px-4 py-3 rounded-xl">
+          {errorMessage}
+        </div>
+      ) : null}
+      {typeof message === "string" && message ? (
+        <div className="border-2 border-primary bg-primary/10 text-primary font-bold text-sm px-4 py-3 rounded-xl">
+          {message}
+        </div>
+      ) : null}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-4xl font-black uppercase tracking-tight">Categories</h1>
@@ -54,12 +72,13 @@ export default async function AdminCategoriesPage() {
                 <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest">Slug</th>
                 <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest">Parent</th>
                 <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest">Created</th>
+                <th className="px-6 py-4 text-right text-xs font-black uppercase tracking-widest">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y-2 divide-foreground/10">
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-16 text-center text-muted-foreground font-bold italic">
+                  <td colSpan={5} className="px-6 py-16 text-center text-muted-foreground font-bold italic">
                     Belum ada kategori
                   </td>
                 </tr>
@@ -78,6 +97,22 @@ export default async function AdminCategoriesPage() {
                     </td>
                     <td className="px-6 py-4 text-muted-foreground font-bold text-xs">
                       {new Date(c.created_at).toLocaleString("id-ID")}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-end">
+                        <form action={deleteCategoryAction}>
+                          <input type="hidden" name="categoryId" value={c.id} />
+                          <Button
+                            type="submit"
+                            size="icon"
+                            variant="ghost"
+                            className="h-10 w-10 border-2 border-foreground hover:bg-red-500 hover:text-white hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] transition-all rounded-xl text-red-600"
+                            title="Hapus"
+                          >
+                            <Trash2 size={18} />
+                          </Button>
+                        </form>
+                      </div>
                     </td>
                   </tr>
                 ))
