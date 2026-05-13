@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createProductAction } from "@/lib/actions/admin"
+import { ProductNameSlugFields } from "@/components/admin/product-name-slug-fields"
 import { ArrowLeft } from "lucide-react"
 
 export const metadata = {
@@ -38,29 +39,7 @@ export default async function AdminNewProductPage() {
       <form action={createProductAction}>
         <div className="bg-white border-4 border-foreground shadow-[12px_12px_0_0_rgba(0,0,0,1)] p-8 space-y-8 rounded-xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-                Nama Produk
-              </label>
-              <input
-                name="name"
-                required
-                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
-                placeholder="Contoh: Midi Dress Satin"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-                Slug
-              </label>
-              <input
-                name="slug"
-                required
-                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all font-mono rounded-xl"
-                placeholder="contoh: midi-dress-satin"
-              />
-            </div>
+            <ProductNameSlugFields />
 
             <div className="space-y-2 md:col-span-2">
               <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
