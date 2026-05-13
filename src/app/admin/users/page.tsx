@@ -107,7 +107,7 @@ export default async function AdminUsersPage({
                   <th className="py-3 pr-4 font-black uppercase text-[10px] tracking-widest text-muted-foreground">Role</th>
                   <th className="py-3 pr-4 font-black uppercase text-[10px] tracking-widest text-muted-foreground">User ID</th>
                   <th className="py-3 font-black uppercase text-[10px] tracking-widest text-muted-foreground">Created</th>
-                  <th className="py-3 text-right font-black uppercase text-[10px] tracking-widest text-muted-foreground">Actions</th>
+                  <th className="py-3 pr-4 text-right font-black uppercase text-[10px] tracking-widest text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -131,7 +131,7 @@ export default async function AdminUsersPage({
                     <td className="py-4 text-muted-foreground font-bold">
                       {new Date(u.created_at).toLocaleString("id-ID")}
                     </td>
-                    <td className="py-4">
+                    <td className="py-4 pr-4">
                       <div className="flex justify-end">
                         <UserActionsPopover
                           userId={u.id}

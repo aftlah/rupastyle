@@ -28,16 +28,17 @@ export function UserActionsPopover({ userId, defaultRole, allowRoleChange = true
       const rect = btn.getBoundingClientRect()
       const width = 320
       const gap = 12
+      const edgePadding = 24
       const viewportW = window.innerWidth
       const viewportH = window.innerHeight
 
       let left = rect.right - width
-      left = Math.max(16, Math.min(left, viewportW - width - 16))
+      left = Math.max(edgePadding, Math.min(left, viewportW - width - edgePadding))
 
       const estimatedHeight = 220
       let top = rect.bottom + gap
-      if (top + estimatedHeight > viewportH - 16) {
-        top = Math.max(16, rect.top - gap - estimatedHeight)
+      if (top + estimatedHeight > viewportH - edgePadding) {
+        top = Math.max(edgePadding, rect.top - gap - estimatedHeight)
       }
 
       setPos({ top, left })
@@ -184,7 +185,7 @@ export function UserActionsPopover({ userId, defaultRole, allowRoleChange = true
         ref={buttonRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-10 items-center justify-center border-2 border-foreground bg-white px-4 font-black uppercase text-xs shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all rounded-xl"
+        className="inline-flex h-10 items-center justify-center border-2 border-foreground bg-white px-4 font-black uppercase text-xs shadow-[3px_3px_0_0_rgba(0,0,0,1)] hover:shadow-none transition-all rounded-xl"
         aria-haspopup="dialog"
         aria-expanded={open}
       >

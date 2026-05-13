@@ -2,7 +2,7 @@ import Link from "next/link"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { deleteCategoryAction } from "@/lib/actions/admin"
 import { Button } from "@/components/ui/button"
-import { Plus, Trash2 } from "lucide-react"
+import { Edit, Plus, Trash2 } from "lucide-react"
 
 type CategoryRow = {
   id: string
@@ -100,18 +100,31 @@ export default async function AdminCategoriesPage({
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex justify-end">
-                        <form action={deleteCategoryAction}>
-                          <input type="hidden" name="categoryId" value={c.id} />
+                        <div className="flex items-center gap-2">
                           <Button
-                            type="submit"
+                            asChild
                             size="icon"
                             variant="ghost"
-                            className="h-10 w-10 border-2 border-foreground hover:bg-red-500 hover:text-white hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] transition-all rounded-xl text-red-600"
-                            title="Hapus"
+                            className="h-10 w-10 border-2 border-foreground hover:bg-primary/20 hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] transition-all rounded-xl"
+                            title="Edit"
                           >
-                            <Trash2 size={18} />
+                            <Link href={`/admin/categories/${c.id}`}>
+                              <Edit size={18} />
+                            </Link>
                           </Button>
-                        </form>
+                          <form action={deleteCategoryAction}>
+                            <input type="hidden" name="categoryId" value={c.id} />
+                            <Button
+                              type="submit"
+                              size="icon"
+                              variant="ghost"
+                              className="h-10 w-10 border-2 border-foreground hover:bg-red-500 hover:text-white hover:shadow-[3px_3px_0_0_rgba(0,0,0,1)] transition-all rounded-xl text-red-600"
+                              title="Hapus"
+                            >
+                              <Trash2 size={18} />
+                            </Button>
+                          </form>
+                        </div>
                       </div>
                     </td>
                   </tr>

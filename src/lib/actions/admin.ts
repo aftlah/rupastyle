@@ -162,6 +162,54 @@ export async function createCategoryAction(formData: FormData) {
   redirect("/admin/categories")
 }
 
+export async function updateCategoryAction(formData: FormData) {
+  await checkAdmin()
+  const supabase = createAdminClient()
+
+  const id = (formData.get("id") as string) || ""
+  const name = (formData.get("name") as string) || ""
+  const slug = (formData.get("slug") as string) || ""
+  const description = (formData.get("description") as string) || null
+  const parentCategoryId = (formData.get("parentCategoryId") as string) || null
+
+  if (!id.trim()) {
+    redirect("/admin/categories?error=Category%20ID%20tidak%20valid")
+  }
+  if (!name.trim() || !slug.trim()) {
+    redirect(`/admin/categories/${encodeURIComponent(id)}?error=Nama%20dan%20slug%20wajib`)
+  }
+  if (parentCategoryId && parentCategoryId === id) {
+    redirect(`/admin/categories/${encodeURIComponent(id)}?error=Parent%20tidak%20boleh%20diri%20sendiri`)
+  }
+
+  const { error } = await supabase
+    .from("categories")
+    .update({
+      name: name.trim(),
+      slug: slug.trim(),
+      description: description ? description.toString().trim() : null,
+      parent_category_id: parentCategoryId || null,
+    })
+    .eq("id", id)
+
+  if (error) {
+    const message = (() => {
+      const raw = (error as any)?.message?.toString?.() || "Gagal update kategori"
+      const lower = raw.toLowerCase()
+      if ((error as any)?.code === "23505" || lower.includes("duplicate key")) {
+        return "Slug sudah digunakan. Gunakan slug lain yang unik."
+      }
+      return raw
+    })()
+    redirect(`/admin/categories/${encodeURIComponent(id)}?error=${encodeURIComponent(message)}`)
+  }
+
+  revalidatePath("/admin/categories")
+  revalidatePath("/admin/products")
+  revalidatePath("/")
+  redirect("/admin/categories?message=Kategori%20berhasil%20diupdate")
+}
+
 export async function deleteCategoryAction(formData: FormData) {
   await checkAdmin()
   const supabase = createAdminClient()
