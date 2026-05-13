@@ -19,10 +19,25 @@ export async function checkoutAction(formData: FormData) {
   }
 
   const items = JSON.parse(cartDataRaw)
+  const shippingMethodRaw = (formData.get('shippingMethod') as string | null) ?? 'regular'
+  const customerName = (formData.get('customerName') as string | null) ?? ''
+  const customerPhone = (formData.get('customerPhone') as string | null) ?? ''
+  const shippingAddress = (formData.get('shippingAddress') as string | null) ?? ''
+  const note = (formData.get('note') as string | null) ?? ''
+
+  if (!customerName.trim() || !customerPhone.trim() || !shippingAddress.trim()) {
+    redirect('/checkout?error=Lengkapi data penerima dan alamat pengiriman')
+  }
 
   let redirectUrl = ''
   try {
-    const order = await createOrder(user.id, items)
+    const order = await createOrder(user.id, items, {
+      shippingMethod: shippingMethodRaw as any,
+      shippingAddress,
+      customerName,
+      customerPhone,
+      note,
+    })
     revalidatePath('/cart')
     revalidatePath('/checkout')
     

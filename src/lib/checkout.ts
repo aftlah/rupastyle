@@ -3,6 +3,34 @@ import { getCartWithItems } from './cart'
 import { generateSnapToken } from './midtrans'
 import type { Order, OrderItem, OrderWithItems } from '@/types'
 
+type ShippingMethod = 'regular' | 'express' | 'pickup'
+
+function getShippingCost(method: ShippingMethod) {
+  switch (method) {
+    case 'regular':
+      return 20000
+    case 'express':
+      return 40000
+    case 'pickup':
+      return 0
+    default:
+      return 20000
+  }
+}
+
+function getShippingLabel(method: ShippingMethod) {
+  switch (method) {
+    case 'regular':
+      return 'Reguler (2-4 hari)'
+    case 'express':
+      return 'Express (1-2 hari)'
+    case 'pickup':
+      return 'Ambil di Toko'
+    default:
+      return 'Reguler (2-4 hari)'
+  }
+}
+
 export async function getCheckoutData(userId: string) {
   const cart = await getCartWithItems(userId)
   return cart
@@ -30,22 +58,28 @@ function generateOrderNumber() {
   return `ORD-${timestamp}-${random}`
 }
 
-export async function createOrder(userId: string, items: any[]): Promise<Order> {
+export async function createOrder(
+  userId: string,
+  items: any[],
+  details: {
+    shippingMethod: ShippingMethod
+    shippingAddress: string
+    customerName: string
+    customerPhone: string
+    note?: string
+  }
+): Promise<Order> {
   const supabase = await createClient()
 
-  console.log('--- START CHECKOUT (STATE MGMT) ---')
-  console.log('User ID:', userId)
-  console.log('Items:', items.length)
-
   if (!items || items.length === 0) {
-    console.error('ERROR: Items are empty')
     throw new Error('Cart is empty')
   }
 
-  const grossAmount = items.reduce((sum, item) => {
+  const subtotal = items.reduce((sum, item) => {
     return sum + (item.price * item.quantity)
   }, 0)
-  console.log('Total Amount:', grossAmount)
+  const shippingCost = getShippingCost(details.shippingMethod)
+  const grossAmount = subtotal + shippingCost
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
   if (userError || !userData.user) {
@@ -53,10 +87,22 @@ export async function createOrder(userId: string, items: any[]): Promise<Order> 
   }
 
   const orderNumber = generateOrderNumber()
-  const customerName = userData.user.email?.split('@')[0] || 'Customer'
+  const customerName = details.customerName?.trim() || (userData.user.email?.split('@')[0] || 'Customer')
   const customerEmail = userData.user.email || ''
+  const customerPhone = details.customerPhone?.trim() || ''
+  const shippingLabel = getShippingLabel(details.shippingMethod)
+  const shippingAddress = details.shippingAddress?.trim() || ''
+  const note = details.note?.trim() || ''
+  const shippingAddressStored = [
+    shippingAddress,
+    '',
+    `Metode Pengiriman: ${shippingLabel}`,
+    `Ongkir: Rp ${shippingCost.toLocaleString('id-ID')}`,
+    note ? `Catatan: ${note}` : null,
+  ]
+    .filter(Boolean)
+    .join('\n')
 
-  console.log('Inserting order to database...')
   const { data: order, error: orderError } = await supabase
     .from('orders')
     .insert({
@@ -65,20 +111,18 @@ export async function createOrder(userId: string, items: any[]): Promise<Order> 
       status: 'pending',
       payment_status: 'pending',
       gross_amount: grossAmount,
-      shipping_address: '',
+      shipping_address: shippingAddressStored,
       customer_name: customerName,
       customer_email: customerEmail,
-      customer_phone: '',
+      customer_phone: customerPhone,
       midtrans_order_id: orderNumber,
     })
     .select()
     .single()
 
   if (orderError) {
-    console.error('Database Error (orders):', orderError)
     throw orderError
   }
-  console.log('Order record created:', order.id)
 
   const orderItems: Omit<OrderItem, 'id' | 'created_at'>[] = items.map(item => {
     return {
@@ -99,14 +143,12 @@ export async function createOrder(userId: string, items: any[]): Promise<Order> 
     .insert(orderItems)
 
   if (orderItemsError) {
-    console.error('Database Error (order_items):', orderItemsError)
     throw orderItemsError
   }
 
   let snapToken: string | null = null
   let snapRedirectUrl: string | null = null
 
-  console.log('Requesting Midtrans Snap Token...')
   try {
     const midtransResponse = await generateSnapToken({
       orderId: orderNumber,
@@ -116,7 +158,6 @@ export async function createOrder(userId: string, items: any[]): Promise<Order> 
     })
     snapToken = midtransResponse.token
     snapRedirectUrl = midtransResponse.redirect_url
-    console.log('Midtrans Success. Redirect URL:', snapRedirectUrl)
   } catch (midtransError) {
     console.error('Midtrans API Error:', midtransError)
   }
@@ -134,6 +175,5 @@ export async function createOrder(userId: string, items: any[]): Promise<Order> 
     order.snap_redirect_url = snapRedirectUrl
   }
 
-  console.log('--- END CHECKOUT SUCCESS ---')
   return order
 }
