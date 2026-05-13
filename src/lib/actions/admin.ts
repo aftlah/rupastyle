@@ -418,7 +418,7 @@ export async function getAdminStats() {
   const { data: orders } = await supabase
     .from('orders')
     .select('gross_amount, status, created_at')
-    .eq('payment_status', 'settlement')
+    .in('payment_status', ['paid', 'settlement'])
 
   const totalRevenue = orders?.reduce((sum, order) => sum + order.gross_amount, 0) || 0
   const totalOrders = orders?.length || 0

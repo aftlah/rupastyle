@@ -20,7 +20,13 @@ export default function PaymentButton({ snapToken }: PaymentButtonProps) {
   const [isPaying, setIsPaying] = useState(false)
 
   useEffect(() => {
-    const existingScript = document.querySelector('script[src="https://app.sandbox.midtrans.com/snap/snap.js"]')
+    const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || ''
+    const envRaw = (process.env.NEXT_PUBLIC_MIDTRANS_ENV || '').trim().toLowerCase()
+    const env = envRaw === 'production' || envRaw === 'prod' ? 'production' : 'sandbox'
+    const scriptSrc = env === 'sandbox'
+      ? 'https://app.sandbox.midtrans.com/snap/snap.js'
+      : 'https://app.midtrans.com/snap/snap.js'
+    const existingScript = document.querySelector(`script[src="${scriptSrc}"]`)
 
     if (existingScript) {
       setIsScriptLoaded(true)
@@ -28,8 +34,8 @@ export default function PaymentButton({ snapToken }: PaymentButtonProps) {
     }
 
     const script = document.createElement('script')
-    script.src = 'https://app.sandbox.midtrans.com/snap/snap.js'
-    script.setAttribute('data-client-key', process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '')
+    script.src = scriptSrc
+    script.setAttribute('data-client-key', clientKey)
     script.async = true
 
     script.onload = () => {

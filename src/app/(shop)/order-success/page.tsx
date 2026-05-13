@@ -1,6 +1,10 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { headers } from "next/headers"
 import { getOrderById } from "@/lib/checkout"
+import { generateSnapToken, getMidtransTransactionStatus } from "@/lib/midtrans"
+import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import PaymentButton from "@/components/checkout/payment-button"
@@ -27,6 +31,97 @@ export default async function OrderSuccessPage({ searchParams }: OrderSuccessPag
     notFound()
   }
 
+  const admin = createAdminClient()
+
+  let currentPaymentStatus = order.payment_status
+  let currentOrderStatus = order.status
+  if (currentPaymentStatus !== "paid") {
+    try {
+      const midtransOrderId = order.midtrans_order_id ?? order.order_number
+      const status = await getMidtransTransactionStatus(midtransOrderId)
+      const txStatus = (status.transaction_status ?? "").toLowerCase()
+
+      let nextPaymentStatus: string | null = null
+      let nextOrderStatus: string | null = null
+
+      if (txStatus === "capture" || txStatus === "settlement") {
+        nextPaymentStatus = "paid"
+        nextOrderStatus = "processing"
+      } else if (txStatus === "deny" || txStatus === "cancel" || txStatus === "expire" || txStatus === "failure") {
+        nextPaymentStatus = "failed"
+        nextOrderStatus = "failed"
+      } else if (txStatus === "pending") {
+        nextPaymentStatus = "pending"
+        nextOrderStatus = "pending"
+      }
+
+      if (
+        (nextPaymentStatus && nextPaymentStatus !== currentPaymentStatus) ||
+        (nextOrderStatus && nextOrderStatus !== currentOrderStatus)
+      ) {
+        const update: Record<string, any> = {
+          payment_status: nextPaymentStatus ?? currentPaymentStatus,
+          status: nextOrderStatus ?? currentOrderStatus,
+          payment_type: status.payment_type ?? order.payment_type ?? null,
+          payment_status_raw: JSON.stringify(status),
+        }
+        if (nextPaymentStatus === "paid") {
+          update.paid_at = status.transaction_time ?? null
+        }
+        await admin.from("orders").update(update).eq("id", order.id)
+        currentPaymentStatus = update.payment_status
+        currentOrderStatus = update.status
+      }
+    } catch (error) {
+      console.error("Midtrans status sync error:", error)
+    }
+  }
+
+  const isPaid = currentPaymentStatus === "paid"
+  let snapToken = order.snap_token
+  let paymentErrorMessage: string | null = null
+
+  if (!isPaid && currentPaymentStatus === "failed") {
+    paymentErrorMessage = "Pembayaran gagal/expire. Silakan buat pesanan baru."
+  } else if (!isPaid && !snapToken) {
+    try {
+      const h = await headers()
+      const origin =
+        h.get("origin") ??
+        `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}`
+      const finishUrl = `${origin}/order-success?order_id=${encodeURIComponent(order.id)}`
+
+      const midtransResponse = await generateSnapToken({
+        orderId: order.midtrans_order_id ?? order.order_number,
+        grossAmount: order.gross_amount,
+        customerName: order.customer_name ?? undefined,
+        customerEmail: order.customer_email,
+        customerPhone: order.customer_phone ?? undefined,
+        finishUrl,
+      })
+
+      snapToken = midtransResponse.token
+      const supabase = await createClient()
+      await supabase
+        .from("orders")
+        .update({
+          snap_token: midtransResponse.token,
+          snap_redirect_url: midtransResponse.redirect_url,
+        })
+        .eq("id", order.id)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Gagal membuat token pembayaran"
+      console.error("Midtrans token error:", error)
+      if (message.toLowerCase().includes("midtrans_server_key")) {
+        paymentErrorMessage = "Konfigurasi Midtrans belum lengkap (Server Key belum diset)."
+      } else if (message.toLowerCase().includes("midtrans api error: 401") || message.toLowerCase().includes("midtrans api error: 403")) {
+        paymentErrorMessage = "Midtrans menolak request (401/403). Biasanya karena Server Key salah atau bukan Sandbox. Update key dan restart server."
+      } else {
+        paymentErrorMessage = "Gagal membuat token pembayaran. Silakan coba lagi."
+      }
+    }
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
       <div className="flex justify-center">
@@ -51,8 +146,17 @@ export default async function OrderSuccessPage({ searchParams }: OrderSuccessPag
           </CardHeader>
           <CardContent className="p-10 space-y-8">
             <p className="text-lg font-bold text-center leading-tight">
-              YEAY! Terima kasih telah berbelanja di RupaStyle. <br/>
-              Satu langkah lagi, silakan selesaikan pembayaran Anda.
+              {isPaid ? (
+                <>
+                  Terima kasih telah berbelanja di RupaStyle. <br />
+                  Pembayaran sudah kami terima.
+                </>
+              ) : (
+                <>
+                  YEAY! Terima kasih telah berbelanja di RupaStyle. <br />
+                  Satu langkah lagi, silakan selesaikan pembayaran Anda.
+                </>
+              )}
             </p>
             
             <div className="space-y-4 border-4 border-foreground p-6 bg-secondary shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] rounded-xl">
@@ -68,11 +172,15 @@ export default async function OrderSuccessPage({ searchParams }: OrderSuccessPag
               </div>
             </div>
 
-            {order.snap_token ? (
-              <PaymentButton snapToken={order.snap_token} />
+            {isPaid ? (
+              <div className="p-4 border-4 border-foreground bg-green-100 text-foreground font-black uppercase text-xs text-center rounded-xl">
+                Status: Paid
+              </div>
+            ) : snapToken ? (
+              <PaymentButton snapToken={snapToken} />
             ) : (
               <div className="p-4 border-4 border-destructive bg-destructive/10 text-destructive font-black uppercase text-xs text-center rounded-xl">
-                Token pembayaran tidak tersedia. Silakan hubungi admin.
+                {paymentErrorMessage ?? "Token pembayaran tidak tersedia. Silakan hubungi admin."}
               </div>
             )}
           </CardContent>

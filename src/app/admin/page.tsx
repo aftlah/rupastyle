@@ -2,12 +2,14 @@ import { getAdminStats } from "@/lib/actions/admin"
 import { formatCurrency } from "@/lib/utils"
 import { TrendingUp, ShoppingBag, AlertTriangle, Clock, ArrowUpRight } from "lucide-react"
 import Link from "next/link"
+import AdminAutoRefresh from "@/components/admin/admin-auto-refresh"
 
 export default async function AdminDashboard() {
   const stats = await getAdminStats()
 
   return (
     <div className="space-y-8">
+      <AdminAutoRefresh intervalMs={5000} />
       <header>
         <h1 className="text-4xl font-black uppercase tracking-tight">Overview Dashboard</h1>
         <p className="text-muted-foreground font-bold italic mt-1">Real-time store performance and analytics</p>
@@ -70,7 +72,7 @@ export default async function AdminDashboard() {
                   <div className="text-right">
                     <p className="font-black text-sm">{formatCurrency(order.gross_amount)}</p>
                     <span className={`text-[10px] font-black uppercase px-2 py-0.5 border border-black ${
-                      order.payment_status === 'settlement' ? 'bg-green-400' : 'bg-yellow-400'
+                      order.payment_status === 'paid' || order.payment_status === 'settlement' ? 'bg-green-400' : 'bg-yellow-400'
                     }`}>
                       {order.payment_status}
                     </span>
