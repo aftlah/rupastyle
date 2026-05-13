@@ -18,12 +18,20 @@ type ProductNameSlugFieldsProps = {
   defaultName?: string
   defaultSlug?: string
   autoSlug?: boolean
+  nameLabel?: string
+  slugLabel?: string
+  namePlaceholder?: string
+  slugPlaceholder?: string
 }
 
 export function ProductNameSlugFields({
   defaultName = "",
   defaultSlug = "",
   autoSlug = true,
+  nameLabel = "Nama Produk",
+  slugLabel = "Slug",
+  namePlaceholder = "Contoh: Midi Dress Satin",
+  slugPlaceholder = "contoh: midi-dress-satin",
 }: ProductNameSlugFieldsProps) {
   const initial = useMemo(() => {
     const name = defaultName ?? ""
@@ -42,7 +50,7 @@ export function ProductNameSlugFields({
     <>
       <div className="space-y-2">
         <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-          Nama Produk
+          {nameLabel}
         </label>
         <input
           name="name"
@@ -56,13 +64,13 @@ export function ProductNameSlugFields({
             }
           }}
           className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
-          placeholder="Contoh: Midi Dress Satin"
+          placeholder={namePlaceholder}
         />
       </div>
 
       <div className="space-y-2">
         <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-          Slug
+          {slugLabel}
         </label>
         <input
           name="slug"
@@ -75,7 +83,7 @@ export function ProductNameSlugFields({
           }}
           onBlur={() => setSlug((v) => slugify(v))}
           className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all font-mono rounded-xl"
-          placeholder="contoh: midi-dress-satin"
+          placeholder={slugPlaceholder}
         />
       </div>
     </>
