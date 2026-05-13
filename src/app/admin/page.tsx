@@ -22,14 +22,14 @@ export default async function AdminDashboard() {
           value={formatCurrency(stats.totalRevenue)} 
           icon={<TrendingUp className="text-green-600" />} 
           color="bg-green-100"
-          trend="+12.5%"
+          trend={stats.revenueTrend}
         />
         <StatCard 
           title="Total Orders" 
           value={stats.totalOrders.toString()} 
           icon={<ShoppingBag className="text-blue-600" />} 
           color="bg-blue-100"
-          trend="+5 new"
+          trend={stats.newOrdersTrend}
         />
         <StatCard 
           title="Avg. Order Value" 
@@ -127,6 +127,20 @@ export default async function AdminDashboard() {
 }
 
 function StatCard({ title, value, icon, color, trend, urgent }: any) {
+  const trendText = typeof trend === "string" ? trend : ""
+  const tone =
+    !trendText || trendText === "0%"
+      ? "neutral"
+      : trendText.trim().startsWith("-")
+        ? "negative"
+        : "positive"
+  const trendClass =
+    tone === "negative"
+      ? "bg-red-100 text-red-700 border-red-700/20"
+      : tone === "neutral"
+        ? "bg-gray-100 text-gray-700 border-gray-700/20"
+        : "bg-green-100 text-green-700 border-green-700/20"
+
   return (
     <div className={`p-6 border-4 border-foreground bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none transition-all ${urgent ? 'ring-8 ring-orange-500/10' : ''} rounded-xl`}>
       <div className="flex justify-between items-start mb-4">
@@ -134,7 +148,7 @@ function StatCard({ title, value, icon, color, trend, urgent }: any) {
           {icon}
         </div>
         {trend && (
-          <span className="text-[10px] font-black uppercase bg-green-100 text-green-700 px-3 py-1 border-2 border-green-700/20 rounded-xl">
+          <span className={`text-[10px] font-black uppercase px-3 py-1 border-2 rounded-xl ${trendClass}`}>
             {trend}
           </span>
         )}

@@ -417,11 +417,52 @@ export async function getAdminStats() {
   // Total Sales
   const { data: orders, error: ordersError } = await supabase
     .from('orders')
-    .select('gross_amount')
+    .select('gross_amount, created_at')
     .eq('payment_status', 'paid')
 
-  if (ordersError) {
+  if (ordersError) {  
     throw ordersError
+  }
+
+  const now = new Date()
+  const startCurrentWindow = new Date(now)
+  startCurrentWindow.setDate(now.getDate() - 7)
+  const startPreviousWindow = new Date(now)
+  startPreviousWindow.setDate(now.getDate() - 14)
+  const startNewWindow = new Date(now)
+  startNewWindow.setHours(now.getHours() - 24)
+
+  const currentWindowStartMs = startCurrentWindow.getTime()
+  const previousWindowStartMs = startPreviousWindow.getTime()
+  const newWindowStartMs = startNewWindow.getTime()
+
+  let currentRevenue = 0
+  let previousRevenue = 0
+  let newOrdersCount = 0
+  for (const o of orders ?? []) {
+    const createdAtMs = new Date((o as any).created_at).getTime()
+    const amount = Number((o as any).gross_amount) || 0
+    if (createdAtMs >= newWindowStartMs) newOrdersCount += 1
+    if (createdAtMs >= currentWindowStartMs) {
+      currentRevenue += amount
+    } else if (createdAtMs >= previousWindowStartMs) {
+      previousRevenue += amount
+    }
+  }
+
+  const revenueChangePct =
+    previousRevenue === 0
+      ? currentRevenue > 0
+        ? 100
+        : 0
+      : ((currentRevenue - previousRevenue) / previousRevenue) * 100
+
+  const formatPct = (value: number) => {
+    const rounded = Math.round(value * 10) / 10
+    const label = `${Math.abs(rounded).toFixed(1)}%`
+    if (rounded > 0) return `+${label}`
+    if (rounded < 0) return `-${label}`
+    return '0%'
   }
 
   const totalRevenue =
@@ -445,6 +486,8 @@ export async function getAdminStats() {
   return {
     totalRevenue,
     totalOrders,
+    revenueTrend: formatPct(revenueChangePct),
+    newOrdersTrend: `+${newOrdersCount} new`,
     lowStockProducts,
     recentOrders,
   }
