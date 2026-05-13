@@ -21,9 +21,11 @@ const SHIPPING_OPTIONS = [
 ] as const
 
 export default function CheckoutClient() {
-  const { items, getTotalPrice } = useCartStore()
+  const { items } = useCartStore()
   const [isLoaded, setIsLoaded] = useState(false)
   const [shippingMethod, setShippingMethod] = useState<(typeof SHIPPING_OPTIONS)[number]["value"]>("regular")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submittedItems, setSubmittedItems] = useState<typeof items | null>(null)
 
   useEffect(() => {
     setIsLoaded(true)
@@ -37,7 +39,9 @@ export default function CheckoutClient() {
     )
   }
 
-  if (items.length === 0) {
+  const displayItems = submittedItems ?? items
+
+  if (!isSubmitting && displayItems.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
         <h2 className="text-3xl font-black uppercase mb-6">Keranjang Anda Kosong</h2>
@@ -46,7 +50,7 @@ export default function CheckoutClient() {
     )
   }
 
-  const total = getTotalPrice()
+  const total = displayItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const shippingCost = SHIPPING_OPTIONS.find((o) => o.value === shippingMethod)?.cost ?? 0
   const grandTotal = total + shippingCost
 
@@ -56,21 +60,40 @@ export default function CheckoutClient() {
 
       <form
         action={async (formData) => {
+          if (!isSubmitting) {
+            setSubmittedItems(items)
+            setIsSubmitting(true)
+          }
           const cartData = JSON.stringify(items)
           formData.append("cartData", cartData)
-
-          useCartStore.getState().clearCart()
-          await checkoutAction(formData)
+          try {
+            await checkoutAction(formData)
+          } finally {
+            useCartStore.getState().clearCart()
+          }
         }}
         className="grid grid-cols-1 lg:grid-cols-3 gap-12"
       >
+        {isSubmitting ? (
+          <div className="fixed inset-0 z-[70] bg-white/80 backdrop-blur-sm">
+            <div className="absolute inset-0 flex items-center justify-center px-6">
+              <div className="w-full max-w-md border-4 border-foreground bg-white p-8 shadow-[12px_12px_0_0_rgba(0,0,0,1)] rounded-xl text-center space-y-4">
+                <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                <div className="font-black uppercase text-lg">Menyiapkan Pembayaran</div>
+                <div className="text-sm font-bold text-muted-foreground">
+                  Mohon tunggu sebentar, jangan tutup halaman ini.
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
         <div className="lg:col-span-2 space-y-8">
           <Card className="border-4 border-foreground rounded-xl shadow-[12px_12px_0_0_rgba(0,0,0,1)] bg-white overflow-hidden">
             <CardHeader className="bg-foreground text-white border-b-4 border-foreground">
               <CardTitle className="text-xl font-black uppercase tracking-widest">Ringkasan Pesanan</CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
-              {items.map((item) => (
+              {displayItems.map((item) => (
                 <div
                   key={item.id}
                   className="flex gap-6 py-6 border-b-4 border-foreground/5 last:border-0"
