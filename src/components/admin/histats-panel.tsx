@@ -29,7 +29,7 @@ export default function HistatsPanel({
         <div>
           <h3 className="text-2xl font-black uppercase tracking-tight">{title}</h3>
           <p className="text-sm text-muted-foreground font-bold italic mt-1">
-            Analytics custom internal tanpa layanan pihak ketiga.
+            Analytics
           </p>
         </div>
         <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">
