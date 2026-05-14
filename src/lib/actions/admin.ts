@@ -410,17 +410,159 @@ export async function setUserPasswordAction(formData: FormData) {
   redirect("/admin/users?message=Password%20berhasil%20diubah")
 }
 
+function formatPct(value: number) {
+  const rounded = Math.round(value * 10) / 10
+  const label = `${Math.abs(rounded).toFixed(1)}%`
+  if (rounded > 0) return `+${label}`
+  if (rounded < 0) return `-${label}`
+  return '0%'
+}
+
+function formatDelta(value: number, suffix: string) {
+  if (value > 0) return `+${value} ${suffix}`
+  if (value < 0) return `${value} ${suffix}`
+  return `0 ${suffix}`
+}
+
+async function getVisitorAnalytics() {
+  const admin = createAdminClient()
+  const now = new Date()
+  const start24h = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+  const start48h = new Date(now.getTime() - 48 * 60 * 60 * 1000)
+  const start5m = new Date(now.getTime() - 5 * 60 * 1000)
+  const start7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+  const { data, error } = await admin
+    .from('site_page_views')
+    .select('*')
+    .gte('visited_at', start7d.toISOString())
+    .order('visited_at', { ascending: false })
+    .limit(5000)
+
+  if (error) {
+    const setupRequired =
+      error.code === 'PGRST205' ||
+      error.code === '42P01' ||
+      error.message.toLowerCase().includes('site_page_views')
+
+    if (!setupRequired) {
+      console.error('Analytics stats error:', error)
+    }
+
+    return {
+      configured: false,
+      setupRequired,
+      pageViewsToday: 0,
+      uniqueVisitorsToday: 0,
+      onlineVisitors: 0,
+      pageViewsTrend: '0%',
+      uniqueVisitorsTrend: '0 visitors',
+      topPages: [] as Array<{ path: string; views: number }>,
+      recentVisitors: [] as Array<{
+        id: string
+        name: string | null
+        email: string | null
+        path: string
+        visitedAt: string
+      }>,
+    }
+  }
+
+  let pageViewsCurrent = 0
+  let pageViewsPrevious = 0
+  const uniqueVisitorsCurrent = new Set<string>()
+  const uniqueVisitorsPrevious = new Set<string>()
+  const onlineVisitors = new Set<string>()
+  const topPagesMap = new Map<string, number>()
+  const recentVisitors: Array<{
+    id: string
+    name: string | null
+    email: string | null
+    path: string
+    visitedAt: string
+  }> = []
+
+  for (const row of data ?? []) {
+    const visitedAt = new Date((row as any).visited_at).getTime()
+    const visitorId = ((row as any).visitor_id ?? '').toString()
+    const path = ((row as any).path ?? '/').toString()
+    const visitedAtIso = ((row as any).visited_at ?? '').toString()
+    const email =
+      typeof (row as any).user_email === 'string' && (row as any).user_email.trim()
+        ? ((row as any).user_email as string).trim()
+        : null
+    const name =
+      typeof (row as any).user_name === 'string' && (row as any).user_name.trim()
+        ? ((row as any).user_name as string).trim()
+        : null
+
+    if (!Number.isFinite(visitedAt)) continue
+
+    if (visitedAt >= start24h.getTime()) {
+      pageViewsCurrent += 1
+      if (visitorId) uniqueVisitorsCurrent.add(visitorId)
+    } else if (visitedAt >= start48h.getTime()) {
+      pageViewsPrevious += 1
+      if (visitorId) uniqueVisitorsPrevious.add(visitorId)
+    }
+
+    if (visitedAt >= start5m.getTime() && visitorId) {
+      onlineVisitors.add(visitorId)
+    }
+
+    topPagesMap.set(path, (topPagesMap.get(path) ?? 0) + 1)
+
+    if (recentVisitors.length < 8) {
+      recentVisitors.push({
+        id: `${visitorId || "guest"}-${visitedAtIso}-${recentVisitors.length}`,
+        name,
+        email,
+        path,
+        visitedAt: visitedAtIso,
+      })
+    }
+  }
+
+  const pageViewsToday = pageViewsCurrent
+  const previousPageViews = pageViewsPrevious
+  const uniqueVisitorsToday = uniqueVisitorsCurrent.size
+  const previousUniqueVisitors = uniqueVisitorsPrevious.size
+
+  const pageViewsTrend =
+    previousPageViews === 0
+      ? pageViewsToday > 0
+        ? 100
+        : 0
+      : ((pageViewsToday - previousPageViews) / previousPageViews) * 100
+
+  const uniqueVisitorsDelta = uniqueVisitorsToday - previousUniqueVisitors
+
+  return {
+    configured: true,
+    setupRequired: false,
+    pageViewsToday,
+    uniqueVisitorsToday,
+    onlineVisitors: onlineVisitors.size,
+    pageViewsTrend: formatPct(pageViewsTrend),
+    uniqueVisitorsTrend: formatDelta(uniqueVisitorsDelta, 'visitors'),
+    topPages: Array.from(topPagesMap.entries())
+      .map(([path, views]) => ({ path, views }))
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 5),
+    recentVisitors,
+  }
+}
+
 export async function getAdminStats() {
   await checkAdmin()
   const supabase = await createClient()
 
-  // Total Sales
   const { data: orders, error: ordersError } = await supabase
     .from('orders')
     .select('gross_amount, created_at')
     .eq('payment_status', 'paid')
 
-  if (ordersError) {  
+  if (ordersError) {
     throw ordersError
   }
 
@@ -457,31 +599,23 @@ export async function getAdminStats() {
         : 0
       : ((currentRevenue - previousRevenue) / previousRevenue) * 100
 
-  const formatPct = (value: number) => {
-    const rounded = Math.round(value * 10) / 10
-    const label = `${Math.abs(rounded).toFixed(1)}%`
-    if (rounded > 0) return `+${label}`
-    if (rounded < 0) return `-${label}`
-    return '0%'
-  }
-
   const totalRevenue =
     (orders ?? []).reduce((sum: number, order: any) => sum + (Number(order.gross_amount) || 0), 0) || 0
   const totalOrders = (orders ?? []).length
 
-  // Low stock products
   const { data: lowStockProducts } = await supabase
     .from('products')
     .select('name, stock')
     .lt('stock', 10)
     .limit(5)
 
-  // Recent orders
   const { data: recentOrders } = await supabase
     .from('orders')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(5)
+
+  const analytics = await getVisitorAnalytics()
 
   return {
     totalRevenue,
@@ -490,5 +624,6 @@ export async function getAdminStats() {
     newOrdersTrend: `+${newOrdersCount} new`,
     lowStockProducts,
     recentOrders,
+    analytics,
   }
 }

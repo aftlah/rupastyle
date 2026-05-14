@@ -3,6 +3,7 @@ import { formatCurrency } from "@/lib/utils"
 import { TrendingUp, ShoppingBag, AlertTriangle, Clock, ArrowUpRight } from "lucide-react"
 import Link from "next/link"
 import AdminAutoRefresh from "@/components/admin/admin-auto-refresh"
+import HistatsPanel from "@/components/admin/histats-panel"
 
 export default async function AdminDashboard() {
   const stats = await getAdminStats()
@@ -122,6 +123,8 @@ export default async function AdminDashboard() {
           </div>
         </section>
       </div>
+
+      <HistatsPanel analytics={stats.analytics} />
     </div>
   )
 }
