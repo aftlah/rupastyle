@@ -43,8 +43,8 @@ export default async function Navbar() {
               <Link href="/" className="text-xl font-black text-foreground hover:text-primary transition-colors border-b-4 border-transparent hover:border-primary py-1 uppercase">
                 Home
               </Link>
-              <Link href="/outfit-builder" className="text-xl font-black text-foreground hover:text-primary transition-colors border-b-4 border-transparent hover:border-primary py-1 uppercase">
-                Outfit
+              <Link href="/products" className="text-xl font-black text-foreground hover:text-primary transition-colors border-b-4 border-transparent hover:border-primary py-1 uppercase">
+                Products
               </Link>
               
               {/* INTERACTIVE CART BUTTON */}

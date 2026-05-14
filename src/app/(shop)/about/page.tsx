@@ -14,7 +14,7 @@ export default function AboutPage() {
         </CardHeader>
         <CardContent className="space-y-4 text-muted-foreground">
           <p>
-            RupaStyle adalah e-commerce fashion wanita yang fokus pada pilihan outfit yang elegan, nyaman,
+            RupaStyle adalah e-commerce fashion Pria yang fokus pada pilihan outfit yang elegan, nyaman,
             dan relevan untuk kebutuhan harian maupun acara spesial.
           </p>
           <p>

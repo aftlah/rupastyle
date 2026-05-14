@@ -41,10 +41,10 @@ export default async function Home() {
           
           <div className="flex flex-col sm:flex-row gap-5">
             <Link 
-              href="/outfit-builder" 
+              href="/products" 
               className="border-2 border-foreground bg-primary text-white px-8 py-4 font-bold uppercase text-base hover:bg-primary/90 shadow-[4px_4px_0_0_rgba(0,0,0,0.9)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,0.9)] hover:-translate-y-1 transition-all rounded-xl"
             >
-              Coba Outfit Builder
+              Lihat Semua Produk
             </Link>
             <Link 
               href="#koleksi" 
