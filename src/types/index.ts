@@ -9,6 +9,11 @@ export interface Product {
   variants: {
     sizes?: string[]
     colors?: string[]
+    promo?: {
+      price?: number | null
+      percent?: number | null
+      label?: string | null
+    }
   }
   is_active: boolean
   created_at: string

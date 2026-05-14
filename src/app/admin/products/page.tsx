@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
-import { formatCurrency } from "@/lib/utils"
+import { formatCurrency, getProductPricing } from "@/lib/utils"
 import { FormSubmitButton } from "@/components/form-submit-button"
 import Link from "next/link"
 import { Plus, Edit, Trash2, Search, Filter, Image as ImageIcon, Loader2 } from "lucide-react"
@@ -86,6 +86,7 @@ export default async function AdminProductsPage({
             <tbody className="divide-y-2 divide-foreground/10">
               {products?.map((product) => {
                 const primaryImage = product.images?.find((img: any) => img.is_primary) || product.images?.[0]
+                const pricing = getProductPricing(product as any)
                 return (
                   <tr key={product.id} className="hover:bg-primary/5 transition-colors group">
                     <td className="px-6 py-4">
@@ -116,7 +117,16 @@ export default async function AdminProductsPage({
                       </span>
                     </td>
                     <td className="px-6 py-4 font-black text-sm">
-                      {formatCurrency(product.price)}
+                      {pricing.hasPromo ? (
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-muted-foreground line-through">
+                            {formatCurrency(pricing.basePrice)}
+                          </p>
+                          <p>{formatCurrency(pricing.finalPrice)}</p>
+                        </div>
+                      ) : (
+                        formatCurrency(product.price)
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">

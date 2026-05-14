@@ -5,7 +5,7 @@ import Image from 'next/image'
 import type { Product } from '@/types'
 import { Button } from '@/components/ui/button'
 import { addOutfitToCartAction } from '@/lib/actions/cart'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, getProductPricing } from '@/lib/utils'
 
 interface OutfitBuilderClientProps {
   tops: Product[]
@@ -16,8 +16,10 @@ export default function OutfitBuilderClient({ tops, bottoms }: OutfitBuilderClie
   const [selectedTop, setSelectedTop] = useState<Product | null>(tops[0] || null)
   const [selectedBottom, setSelectedBottom] = useState<Product | null>(bottoms[0] || null)
   const [isLoading, setIsLoading] = useState(false)
+  const selectedTopPricing = selectedTop ? getProductPricing(selectedTop) : null
+  const selectedBottomPricing = selectedBottom ? getProductPricing(selectedBottom) : null
 
-  const totalPrice = (selectedTop?.price || 0) + (selectedBottom?.price || 0)
+  const totalPrice = (selectedTopPricing?.finalPrice || 0) + (selectedBottomPricing?.finalPrice || 0)
 
   const handleAddToCart = async () => {
     if (!selectedTop || !selectedBottom) return
@@ -74,7 +76,7 @@ export default function OutfitBuilderClient({ tops, bottoms }: OutfitBuilderClie
                   )}
                 </div>
                 <p className="font-bold text-sm line-clamp-1 mb-1">{top.name}</p>
-                <p className="text-primary font-black text-sm">{formatCurrency(top.price)}</p>
+                <p className="text-primary font-black text-sm">{formatCurrency(getProductPricing(top).finalPrice)}</p>
               </button>
             ))}
           </div>
@@ -111,7 +113,7 @@ export default function OutfitBuilderClient({ tops, bottoms }: OutfitBuilderClie
                   )}
                 </div>
                 <p className="font-bold text-sm line-clamp-1 mb-1">{bottom.name}</p>
-                <p className="text-primary font-black text-sm">{formatCurrency(bottom.price)}</p>
+                <p className="text-primary font-black text-sm">{formatCurrency(getProductPricing(bottom).finalPrice)}</p>
               </button>
             ))}
           </div>

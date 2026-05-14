@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { updateProductAction } from "@/lib/actions/admin"
 import { FormSubmitButton } from "@/components/form-submit-button"
+import { formatCurrency, getProductPricing } from "@/lib/utils"
 
 export const metadata = {
   title: "Edit Product - Admin | RupaStyle",
@@ -45,6 +46,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
   }>
 
   const primaryImage = images.find((i) => i.is_primary) ?? images[0]
+  const pricing = getProductPricing(product as any)
 
   return (
     <div className="space-y-8">
@@ -247,6 +249,18 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
             </div>
             <div className="mt-4">
               <p className="font-black uppercase">{product.name}</p>
+              <div className="mt-2">
+                {pricing.hasPromo ? (
+                  <>
+                    <p className="text-xs font-bold text-muted-foreground line-through">
+                      {formatCurrency(pricing.basePrice)}
+                    </p>
+                    <p className="font-black text-primary">{formatCurrency(pricing.finalPrice)}</p>
+                  </>
+                ) : (
+                  <p className="font-black text-primary">{formatCurrency(pricing.finalPrice)}</p>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground font-bold font-mono">
                 ID: {product.id}
               </p>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getProducts } from "@/lib/products";
 import ProductCard from "@/components/product-card";
+import { getProductPricing } from "@/lib/utils";
 
 export const metadata = {
   title: 'RupaStyle - Fashion Pria Modern',
@@ -12,6 +13,7 @@ export const revalidate = 60;
 export default async function Home() {
   const products = await getProducts();
   const latestProducts = products.slice(0, 8);
+  const promoProducts = products.filter((product) => getProductPricing(product).hasPromo).slice(0, 4);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -91,16 +93,16 @@ export default async function Home() {
         <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-10 border-b border-border/60 pb-6 gap-4">
           <div className="text-center md:text-left">
             <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-foreground">Promo Produk</h2>
-            <p className="text-muted-foreground mt-2">Pilihan produk favorit yang lagi kami highlight.</p>
+            <p className="text-muted-foreground mt-2">Produk yang sedang aktif promo dan sudah disetting dari admin.</p>
           </div>
           <Link href="/products" className="font-bold uppercase text-sm border border-border px-6 py-2 rounded-xl hover:bg-foreground hover:text-background transition-colors">
             Lihat Katalog &rarr;
           </Link>
         </div>
 
-        {products.length > 0 ? (
+        {promoProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12">
-            {products.slice(0, 4).map((product) => (
+            {promoProducts.map((product) => (
               <div key={product.id} className="relative">
                 <div className="absolute -top-3 -left-3 z-10 bg-accent text-accent-foreground text-[10px] font-black uppercase px-3 py-1 border border-border shadow-sm rounded-xl">
                   Promo
@@ -111,7 +113,7 @@ export default async function Home() {
           </div>
         ) : (
           <div className="text-center py-16 border border-border border-dashed bg-card rounded-xl">
-            <p className="text-muted-foreground font-bold italic">Belum ada produk untuk ditampilkan</p>
+            <p className="text-muted-foreground font-bold italic">Belum ada produk yang sedang promo</p>
           </div>
         )}
       </section>

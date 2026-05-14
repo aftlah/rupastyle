@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { checkoutAction } from "@/lib/actions/checkout"
+import { formatCurrency } from "@/lib/utils"
 
 const SHIPPING_OPTIONS = [
   { value: "regular", label: "Reguler (2-4 hari)", cost: 20000 },
@@ -131,9 +132,16 @@ export default function CheckoutClient() {
                     </div>
                   </div>
                   <div className="flex flex-col justify-center text-right">
-                    <p className="text-xl font-black">
-                      Rp {(item.price * item.quantity).toLocaleString("id-ID")}
-                    </p>
+                    {typeof item.originalPrice === "number" && item.originalPrice > item.price ? (
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-muted-foreground line-through">
+                          {formatCurrency(item.originalPrice * item.quantity)}
+                        </p>
+                        <p className="text-xl font-black">{formatCurrency(item.price * item.quantity)}</p>
+                      </div>
+                    ) : (
+                      <p className="text-xl font-black">{formatCurrency(item.price * item.quantity)}</p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -233,20 +241,20 @@ export default function CheckoutClient() {
             <CardContent className="p-8 space-y-6">
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground font-bold uppercase tracking-wider text-sm">Subtotal</span>
-                <span className="font-black text-lg">Rp {total.toLocaleString("id-ID")}</span>
+                <span className="font-black text-lg">{formatCurrency(total)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground font-bold uppercase tracking-wider text-sm">Ongkir</span>
-                <span className="font-black text-lg">Rp {shippingCost.toLocaleString("id-ID")}</span>
+                <span className="font-black text-lg">{formatCurrency(shippingCost)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground font-bold uppercase tracking-wider text-sm">Pajak (0%)</span>
-                <span className="font-black text-lg">Rp 0</span>
+                <span className="font-black text-lg">{formatCurrency(0)}</span>
               </div>
               <div className="border-t-4 border-foreground pt-6 flex justify-between items-center">
                 <span className="font-black uppercase tracking-tighter text-xl">Total Akhir</span>
                 <span className="font-black text-3xl text-primary drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">
-                  Rp {grandTotal.toLocaleString("id-ID")}
+                  {formatCurrency(grandTotal)}
                 </span>
               </div>
             </CardContent>

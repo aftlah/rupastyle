@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import type { Product } from "@/types"
+import { formatCurrency, getProductPricing } from "@/lib/utils"
 
 interface ProductCardProps {
   product: Product
@@ -9,6 +10,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const primaryImage = product.images?.find(img => img.is_primary) || product.images?.[0]
+  const pricing = getProductPricing(product)
 
   return (
     <Link href={`/products/${product.slug}`} className="group block">
@@ -35,9 +37,21 @@ export default function ProductCard({ product }: ProductCardProps) {
             </span>
           )}
           <h3 className="font-bold text-lg line-clamp-2 tracking-tight leading-snug mb-3 flex-1 text-foreground group-hover:text-primary transition-colors">{product.name}</h3>
-          <p className="text-xl font-black text-foreground">
-            Rp {product.price.toLocaleString('id-ID')}
-          </p>
+          {pricing.hasPromo ? (
+            <div className="space-y-1">
+              {pricing.promoLabel ? (
+                <span className="inline-flex border border-foreground bg-yellow-300 text-[10px] font-black uppercase px-2 py-1 rounded-xl">
+                  {pricing.promoLabel}
+                </span>
+              ) : null}
+              <p className="text-sm font-bold text-muted-foreground line-through">
+                {formatCurrency(pricing.basePrice)}
+              </p>
+              <p className="text-xl font-black text-primary">{formatCurrency(pricing.finalPrice)}</p>
+            </div>
+          ) : (
+            <p className="text-xl font-black text-foreground">{formatCurrency(pricing.finalPrice)}</p>
+          )}
         </div>
       </div>
     </Link>

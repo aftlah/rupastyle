@@ -12,6 +12,8 @@ interface CartItemProps {
 export default function CartItem({ item }: CartItemProps) {
   const { updateQuantity, removeItem } = useCartStore()
   const subtotal = item.price * item.quantity
+  const originalSubtotal = (item.originalPrice ?? item.price) * item.quantity
+  const hasPromo = typeof item.originalPrice === "number" && item.originalPrice > item.price
 
   return (
     <div className="flex flex-col sm:flex-row gap-6 p-6 group transition-colors hover:bg-primary/5">
@@ -61,9 +63,21 @@ export default function CartItem({ item }: CartItemProps) {
         </div>
 
         <div className="pt-2">
-          <p className="text-2xl font-black text-primary">
-            {formatCurrency(item.price)}
-          </p>
+          {hasPromo ? (
+            <div className="space-y-1">
+              {item.promoLabel ? (
+                <span className="inline-flex text-[10px] font-black uppercase px-2 py-1 border border-foreground bg-yellow-300 rounded-xl">
+                  {item.promoLabel}
+                </span>
+              ) : null}
+              <p className="text-sm font-bold text-muted-foreground line-through">
+                {formatCurrency(item.originalPrice ?? item.price)}
+              </p>
+              <p className="text-2xl font-black text-primary">{formatCurrency(item.price)}</p>
+            </div>
+          ) : (
+            <p className="text-2xl font-black text-primary">{formatCurrency(item.price)}</p>
+          )}
         </div>
       </div>
 
@@ -96,7 +110,16 @@ export default function CartItem({ item }: CartItemProps) {
         <div className="flex items-center gap-4">
           <div className="text-right hidden sm:block">
             <p className="text-[10px] font-black uppercase text-muted-foreground">Subtotal</p>
-            <p className="font-black text-lg">{formatCurrency(subtotal)}</p>
+            {hasPromo ? (
+              <div className="space-y-1">
+                <p className="text-xs font-bold text-muted-foreground line-through">
+                  {formatCurrency(originalSubtotal)}
+                </p>
+                <p className="font-black text-lg">{formatCurrency(subtotal)}</p>
+              </div>
+            ) : (
+              <p className="font-black text-lg">{formatCurrency(subtotal)}</p>
+            )}
           </div>
 
           <Button 

@@ -5,6 +5,7 @@ import { useCartStore } from "@/store/use-cart-store"
 import { Button } from "@/components/ui/button"
 import { Plus, Minus, CheckCircle2 } from "lucide-react"
 import type { Product } from "@/types"
+import { getProductPricing } from "@/lib/utils"
 
 interface AddToCartFormProps {
   product: Product
@@ -14,6 +15,7 @@ export default function AddToCartForm({ product }: AddToCartFormProps) {
   const addItem = useCartStore((state) => state.addItem)
   const sizes = product.variants?.sizes || []
   const colors = product.variants?.colors || []
+  const pricing = getProductPricing(product)
   const [selectedSize, setSelectedSize] = useState<string | null>(sizes[0] || null)
   const [selectedColor, setSelectedColor] = useState<string | null>(colors[0] || null)
   const [quantity, setQuantity] = useState(1)
@@ -30,7 +32,9 @@ export default function AddToCartForm({ product }: AddToCartFormProps) {
       id: Math.random().toString(36).substring(7),
       productId: product.id,
       name: product.name,
-      price: product.price,
+      price: pricing.finalPrice,
+      originalPrice: pricing.hasPromo ? pricing.basePrice : undefined,
+      promoLabel: pricing.promoLabel ?? undefined,
       image: primaryImage?.image_url || '',
       quantity: quantity,
       size: selectedSize || undefined,

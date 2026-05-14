@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { LayoutDashboard, Package, ShoppingCart, Users, Home, Settings, LogOut, Tags } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, Users, Home, Settings, LogOut, Tags, BadgePercent } from "lucide-react"
 import { ensureProductImagesBucket } from "@/lib/supabase/admin"
 
 export default async function AdminLayout({
@@ -37,6 +37,7 @@ export default async function AdminLayout({
         <nav className="flex-1 p-4 space-y-2">
           <AdminNavLink href="/admin" icon={<LayoutDashboard size={20} />} label="Dashboard" />
           <AdminNavLink href="/admin/products" icon={<Package size={20} />} label="Products" />
+          <AdminNavLink href="/admin/promos" icon={<BadgePercent size={20} />} label="Promos" />
           <AdminNavLink href="/admin/categories" icon={<Tags size={20} />} label="Categories" />
           <AdminNavLink href="/admin/orders" icon={<ShoppingCart size={20} />} label="Orders" />
           <AdminNavLink href="/admin/users" icon={<Users size={20} />} label="Users" />

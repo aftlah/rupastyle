@@ -2,6 +2,7 @@ import { createClient } from './supabase/server'
 import { getCartWithItems } from './cart'
 import { generateSnapToken } from './midtrans'
 import type { Order, OrderItem, OrderWithItems } from '@/types'
+import { getProductPricing } from './utils'
 
 type ShippingMethod = 'regular' | 'express' | 'pickup'
 
@@ -76,7 +77,45 @@ export async function createOrder(
     throw new Error('Cart is empty')
   }
 
-  const subtotal = items.reduce((sum, item) => {
+  const productIds = Array.from(
+    new Set(
+      items
+        .map((item) => (typeof item.productId === 'string' ? item.productId : null))
+        .filter(Boolean) as string[]
+    )
+  )
+
+  const { data: products, error: productsError } = productIds.length
+    ? await supabase
+        .from('products')
+        .select('id, name, slug, price, variants')
+        .in('id', productIds)
+    : { data: [], error: null }
+
+  if (productsError) {
+    throw productsError
+  }
+
+  const productById = new Map(
+    ((products ?? []) as Array<{ id: string; name: string; slug: string; price: number; variants: any }>).map((product) => [
+      product.id,
+      product,
+    ])
+  )
+
+  const normalizedItems = items.map((item) => {
+    const product = item.productId ? productById.get(item.productId) : null
+    const effectivePrice = product ? getProductPricing(product as any).finalPrice : Number(item.price) || 0
+
+    return {
+      ...item,
+      price: effectivePrice,
+      name: product?.name ?? item.name,
+      slug: product?.slug ?? item.slug ?? item.productId,
+    }
+  })
+
+  const subtotal = normalizedItems.reduce((sum, item) => {
     return sum + (item.price * item.quantity)
   }, 0)
   const shippingCost = getShippingCost(details.shippingMethod)
@@ -126,12 +165,12 @@ export async function createOrder(
     throw orderError
   }
 
-  const orderItems: Omit<OrderItem, 'id' | 'created_at'>[] = items.map(item => {
+  const orderItems: Omit<OrderItem, 'id' | 'created_at'>[] = normalizedItems.map(item => {
     return {
       order_id: order.id,
       product_id: item.productId,
       product_name: item.name,
-      product_slug: item.productId, // Use productId as fallback slug if not provided
+      product_slug: item.slug,
       price: item.price,
       quantity: item.quantity,
       size: item.size,

@@ -36,6 +36,18 @@ export async function upsertProduct(formData: FormData) {
   const sizes = formData.get('sizes')?.toString().split(',').map(s => s.trim()).filter(Boolean) || []
   const colors = formData.get('colors')?.toString().split(',').map(c => c.trim()).filter(Boolean) || []
   const imageFile = formData.get('image') as File | null
+  let existingPromo: { price?: number | null; percent?: number | null; label?: string | null } | undefined
+
+  if (id) {
+    const { data: existingProduct } = await supabase
+      .from('products')
+      .select('variants')
+      .eq('id', id)
+      .single()
+
+    existingPromo = (existingProduct as { variants?: { promo?: { price?: number | null; percent?: number | null; label?: string | null } } } | null)
+      ?.variants?.promo
+  }
 
   const productData = {
     name,
@@ -45,7 +57,7 @@ export async function upsertProduct(formData: FormData) {
     stock,
     category_id: categoryId,
     is_active: isActive,
-    variants: { sizes, colors },
+    variants: existingPromo ? { sizes, colors, promo: existingPromo } : { sizes, colors },
     updated_at: new Date().toISOString(),
   }
 
@@ -118,6 +130,85 @@ export async function createProductAction(formData: FormData) {
 export async function updateProductAction(formData: FormData) {
   await upsertProduct(formData)
   redirect('/admin/products')
+}
+
+export async function setProductPromoAction(formData: FormData) {
+  await checkAdmin()
+  const supabase = createAdminClient()
+
+  const productId = (formData.get("productId") as string | null)?.trim() ?? ""
+  const promoLabel = ((formData.get("promoLabel") as string | null) ?? "").trim()
+  const promoPercentRaw = ((formData.get("promoPercent") as string | null) ?? "").trim()
+
+  if (!productId) {
+    redirect("/admin/promos?error=Produk%20tidak%20valid")
+  }
+
+  const { data: product, error: productError } = await supabase
+    .from("products")
+    .select("id, slug, price, variants")
+    .eq("id", productId)
+    .single()
+
+  if (productError || !product) {
+    redirect("/admin/promos?error=Produk%20tidak%20ditemukan")
+  }
+
+  const currentVariants =
+    (product as { variants?: { sizes?: string[]; colors?: string[]; promo?: { price?: number | null; percent?: number | null; label?: string | null } } })
+      .variants ?? {}
+
+  let nextVariants: typeof currentVariants = {
+    ...currentVariants,
+  }
+
+  if (!promoPercentRaw) {
+    if ("promo" in nextVariants) {
+      delete nextVariants.promo
+    }
+  } else {
+    const promoPercent = Number(promoPercentRaw)
+    if (!Number.isFinite(promoPercent) || promoPercent <= 0) {
+      redirect("/admin/promos?error=Persen%20promo%20harus%20lebih%20besar%20dari%200")
+    }
+    if (promoPercent >= 100) {
+      redirect("/admin/promos?error=Persen%20promo%20harus%20lebih%20kecil%20dari%20100")
+    }
+
+    nextVariants = {
+      ...nextVariants,
+      promo: {
+        percent: promoPercent,
+        price: null,
+        label: promoLabel || null,
+      },
+    }
+  }
+
+  const { error } = await supabase
+    .from("products")
+    .update({
+      variants: nextVariants,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", productId)
+
+  if (error) {
+    redirect(`/admin/promos?error=${encodeURIComponent(error.message)}`)
+  }
+
+  revalidatePath("/admin/promos")
+  revalidatePath("/admin/products")
+  revalidatePath(`/admin/products/${productId}`)
+  revalidatePath(`/products/${product.slug}`)
+  revalidatePath("/products")
+  revalidatePath("/")
+
+  if (!promoPercentRaw) {
+    redirect("/admin/promos?message=Promo%20berhasil%20dihapus")
+  }
+
+  redirect("/admin/promos?message=Promo%20berhasil%20disimpan")
 }
 
 export async function createCategoryAction(formData: FormData) {
