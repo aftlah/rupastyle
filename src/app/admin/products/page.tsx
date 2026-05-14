@@ -2,18 +2,22 @@ import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { formatCurrency, getProductPricing } from "@/lib/utils"
 import { FormSubmitButton } from "@/components/form-submit-button"
+import AdminProductsFilters from "@/components/admin/admin-products-filters"
 import Link from "next/link"
-import { Plus, Edit, Trash2, Search, Filter, Image as ImageIcon, Loader2 } from "lucide-react"
+import { Plus, Edit, Trash2, Image as ImageIcon, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { deleteProductAction } from "@/lib/actions/admin"
 
 export default async function AdminProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string }>
+  searchParams: Promise<{ error?: string; message?: string; q?: string; category?: string; status?: string }>
 }) {
-  const { error: errorMessage, message } = await searchParams
+  const { error: errorMessage, message, q, category, status } = await searchParams
   const supabase = await createClient()
+  const searchQuery = (q ?? "").trim().toLowerCase()
+  const selectedCategory = (category ?? "").trim().toLowerCase()
+  const selectedStatus = (status ?? "").trim().toLowerCase()
   
   const { data: products } = await supabase
     .from('products')
@@ -23,6 +27,29 @@ export default async function AdminProductsPage({
       images:product_images(*)
     `)
     .order('created_at', { ascending: false })
+
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("id, name")
+    .order("name", { ascending: true })
+
+  const filteredProducts = (products ?? []).filter((product) => {
+    const matchesSearch =
+      !searchQuery ||
+      product.name?.toLowerCase().includes(searchQuery) ||
+      product.slug?.toLowerCase().includes(searchQuery) ||
+      product.id?.toLowerCase().includes(searchQuery)
+
+    const productCategory = product.category?.name?.trim().toLowerCase() || "uncategorized"
+    const matchesCategory =
+      !selectedCategory ||
+      (selectedCategory === "uncategorized" ? !product.category?.name : productCategory === selectedCategory)
+
+    const productStatus = product.is_active ? "active" : "draft"
+    const matchesStatus = !selectedStatus || productStatus === selectedStatus
+
+    return matchesSearch && matchesCategory && matchesStatus
+  })
 
   return (
     <div className="space-y-8">
@@ -50,24 +77,14 @@ export default async function AdminProductsPage({
       </div>
 
       {/* Filters Bar */}
-      <div className="flex flex-col md:flex-row gap-4 bg-white border-4 border-foreground p-4 shadow-[4px_4px_0_0_rgba(0,0,0,1)] rounded-xl">
-        <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
-          <input 
-            type="text" 
-            placeholder="Search products..." 
-            className="w-full h-12 pl-12 pr-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
-          />
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="h-12 border-2 border-foreground font-black uppercase px-6">
-            <Filter size={18} className="mr-2" /> Category
-          </Button>
-          <Button variant="outline" className="h-12 border-2 border-foreground font-black uppercase px-6">
-            Status
-          </Button>
-        </div>
-      </div>
+      <AdminProductsFilters
+        initialQuery={q ?? ""}
+        initialCategory={category ?? ""}
+        initialStatus={status ?? ""}
+        totalProducts={(products ?? []).length}
+        filteredCount={filteredProducts.length}
+        categories={categories ?? []}
+      />
 
       {/* Product Table */}
       <div className="bg-white border-4 border-foreground shadow-[12px_12px_0_0_rgba(0,0,0,1)] overflow-hidden rounded-xl">
@@ -84,7 +101,7 @@ export default async function AdminProductsPage({
               </tr>
             </thead>
             <tbody className="divide-y-2 divide-foreground/10">
-              {products?.map((product) => {
+              {filteredProducts.map((product) => {
                 const primaryImage = product.images?.find((img: any) => img.is_primary) || product.images?.[0]
                 const pricing = getProductPricing(product as any)
                 return (
@@ -170,6 +187,15 @@ export default async function AdminProductsPage({
             </tbody>
           </table>
         </div>
+
+        {filteredProducts.length === 0 ? (
+          <div className="px-6 py-12 text-center border-t-2 border-foreground/10">
+            <p className="font-black uppercase text-lg">Produk tidak ditemukan</p>
+            <p className="text-sm text-muted-foreground font-bold mt-2">
+              Coba ubah kata kunci pencarian atau reset filter kategori dan status.
+            </p>
+          </div>
+        ) : null}
       </div>
     </div>
   )
