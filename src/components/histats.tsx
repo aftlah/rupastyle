@@ -44,6 +44,7 @@ export default function Histats() {
         )
       } catch {
         // Ignore storage errors and continue tracking.
+        
       }
 
       let userId: string | null = null

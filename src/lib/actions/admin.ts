@@ -5,7 +5,6 @@ import { createClient } from '../supabase/server'
 import { redirect } from 'next/navigation'
 import { createAdminClient, ensureProductImagesBucket } from '@/lib/supabase/admin'
 
-// Helper to check if user is admin
 async function checkAdmin() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -145,12 +144,12 @@ export async function createCategoryAction(formData: FormData) {
 
   if (error) {
     const message = (() => {
-      const raw = (error as any)?.message?.toString?.() || "Gagal menyimpan kategori"
+      const raw = (error as { message: string })?.message?.toString?.() || "Gagal menyimpan kategori"
       const lower = raw.toLowerCase()
       if (lower.includes("row-level security") || lower.includes("rls")) {
         return "Gagal menyimpan kategori (RLS). Tambahkan policy INSERT untuk admin di tabel categories."
       }
-      if ((error as any)?.code === "23505" || lower.includes("duplicate key")) {
+      if ((error as { code: string })?.code === "23505" || lower.includes("duplicate key")) {
         return "Slug sudah digunakan. Gunakan slug lain yang unik."
       }
       return raw
@@ -194,9 +193,9 @@ export async function updateCategoryAction(formData: FormData) {
 
   if (error) {
     const message = (() => {
-      const raw = (error as any)?.message?.toString?.() || "Gagal update kategori"
+      const raw = (error as { message: string })?.message?.toString?.() || "Gagal update kategori"
       const lower = raw.toLowerCase()
-      if ((error as any)?.code === "23505" || lower.includes("duplicate key")) {
+      if ((error as { code: string })?.code === "23505" || lower.includes("duplicate key")) {
         return "Slug sudah digunakan. Gunakan slug lain yang unik."
       }
       return raw
@@ -279,7 +278,7 @@ export async function deleteProductAction(formData: FormData) {
 
   if (images && images.length > 0) {
     const paths = images
-      .map((i: any) => getStoragePathFromPublicUrl(i.image_url))
+      .map((i: { image_url: string }) => getStoragePathFromPublicUrl(i.image_url))
       .filter(Boolean) as string[]
 
     if (paths.length > 0) {
@@ -483,17 +482,17 @@ async function getVisitorAnalytics() {
   }> = []
 
   for (const row of data ?? []) {
-    const visitedAt = new Date((row as any).visited_at).getTime()
-    const visitorId = ((row as any).visitor_id ?? '').toString()
-    const path = ((row as any).path ?? '/').toString()
-    const visitedAtIso = ((row as any).visited_at ?? '').toString()
+    const visitedAt = new Date((row as { visited_at: string }).visited_at).getTime()
+    const visitorId = ((row as { visitor_id: string }).visitor_id ?? '').toString()
+    const path = ((row as { path: string }).path ?? '/').toString()
+    const visitedAtIso = ((row as { visited_at: string }).visited_at ?? '').toString()
     const email =
-      typeof (row as any).user_email === 'string' && (row as any).user_email.trim()
-        ? ((row as any).user_email as string).trim()
+      typeof (row as { user_email: string }).user_email === 'string' && (row as { user_email: string }).user_email.trim()
+        ? ((row as { user_email: string }).user_email as string).trim()
         : null
     const name =
-      typeof (row as any).user_name === 'string' && (row as any).user_name.trim()
-        ? ((row as any).user_name as string).trim()
+      typeof (row as { user_name: string }).user_name === 'string' && (row as { user_name: string }).user_name.trim()
+        ? ((row as { user_name: string }).user_name as string).trim()
         : null
 
     if (!Number.isFinite(visitedAt)) continue
@@ -582,8 +581,8 @@ export async function getAdminStats() {
   let previousRevenue = 0
   let newOrdersCount = 0
   for (const o of orders ?? []) {
-    const createdAtMs = new Date((o as any).created_at).getTime()
-    const amount = Number((o as any).gross_amount) || 0
+    const createdAtMs = new Date((o as { created_at: string }).created_at).getTime()
+    const amount = Number((o as { gross_amount: string }).gross_amount) || 0
     if (createdAtMs >= newWindowStartMs) newOrdersCount += 1
     if (createdAtMs >= currentWindowStartMs) {
       currentRevenue += amount
@@ -600,7 +599,7 @@ export async function getAdminStats() {
       : ((currentRevenue - previousRevenue) / previousRevenue) * 100
 
   const totalRevenue =
-    (orders ?? []).reduce((sum: number, order: any) => sum + (Number(order.gross_amount) || 0), 0) || 0
+    (orders ?? []).reduce((sum: number, order: { gross_amount: string }) => sum + (Number(order.gross_amount) || 0), 0) || 0
   const totalOrders = (orders ?? []).length
 
   const { data: lowStockProducts } = await supabase
