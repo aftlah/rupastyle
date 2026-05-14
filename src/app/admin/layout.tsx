@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { logout } from "@/lib/actions/auth"
 import { LayoutDashboard, Package, ShoppingCart, Users, Home, Settings, LogOut, Tags, BadgePercent } from "lucide-react"
 import { ensureProductImagesBucket } from "@/lib/supabase/admin"
 
@@ -48,7 +49,7 @@ export default async function AdminLayout({
         </nav>
 
         <div className="p-4 border-t-4 border-foreground">
-          <form action="/api/auth/logout" method="POST">
+          <form action={logout}>
             <button className="w-full flex items-center gap-3 px-4 py-3 font-black uppercase text-sm hover:bg-red-50 text-red-600 transition-colors border-2 border-transparent hover:border-red-600 rounded-xl">
               <LogOut size={18} />
               Logout
