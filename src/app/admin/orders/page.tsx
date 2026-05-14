@@ -17,6 +17,41 @@ export const metadata = {
   title: "Orders - Admin | RupaStyle",
 }
 
+function getPaymentBadgeClass(paymentStatus: string) {
+  const value = paymentStatus.trim().toLowerCase()
+
+  if (value === "paid" || value === "settlement") {
+    return "bg-green-100 text-green-700 border-green-700/30"
+  }
+  if (value === "pending") {
+    return "bg-yellow-100 text-yellow-700 border-yellow-700/30"
+  }
+  if (value === "failed" || value === "deny" || value === "cancel" || value === "expire") {
+    return "bg-red-100 text-red-700 border-red-700/30"
+  }
+
+  return "bg-gray-100 text-gray-700 border-gray-700/30"
+}
+
+function getOrderStatusBadgeClass(status: string) {
+  const value = status.trim().toLowerCase()
+
+  if (value === "processing") {
+    return "bg-blue-100 text-blue-700 border-blue-700/30"
+  }
+  if (value === "completed" || value === "delivered" || value === "success") {
+    return "bg-green-100 text-green-700 border-green-700/30"
+  }
+  if (value === "pending") {
+    return "bg-yellow-100 text-yellow-700 border-yellow-700/30"
+  }
+  if (value === "cancelled" || value === "canceled" || value === "failed") {
+    return "bg-red-100 text-red-700 border-red-700/30"
+  }
+
+  return "bg-gray-100 text-gray-700 border-gray-700/30"
+}
+
 export default async function AdminOrdersPage() {
   const supabase = createAdminClient()
 
@@ -85,12 +120,16 @@ export default async function AdminOrdersPage() {
                     </td>
                     <td className="py-4 pr-4 font-black">{formatCurrency(order.gross_amount)}</td>
                     <td className="py-4 pr-4">
-                      <span className="inline-flex items-center px-2 py-1 text-[10px] font-black uppercase border border-foreground rounded-xl">
+                      <span
+                        className={`inline-flex items-center px-2 py-1 text-[10px] font-black uppercase border rounded-xl ${getPaymentBadgeClass(order.payment_status ?? "")}`}
+                      >
                         {order.payment_status}
                       </span>
                     </td>
                     <td className="py-4 pr-4">
-                      <span className="inline-flex items-center px-2 py-1 text-[10px] font-black uppercase border border-foreground rounded-xl">
+                      <span
+                        className={`inline-flex items-center px-2 py-1 text-[10px] font-black uppercase border rounded-xl ${getOrderStatusBadgeClass(order.status ?? "")}`}
+                      >
                         {order.status}
                       </span>
                     </td>
