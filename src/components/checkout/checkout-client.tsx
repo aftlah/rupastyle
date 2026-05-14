@@ -21,7 +21,11 @@ const SHIPPING_OPTIONS = [
   { value: "pickup", label: "Ambil di Toko", cost: 0 },
 ] as const
 
-export default function CheckoutClient() {
+type CheckoutClientProps = {
+  initialEmail?: string
+}
+
+export default function CheckoutClient({ initialEmail = "" }: CheckoutClientProps) {
   const { items } = useCartStore()
   const [isLoaded, setIsLoaded] = useState(false)
   const [shippingMethod, setShippingMethod] = useState<(typeof SHIPPING_OPTIONS)[number]["value"]>("regular")
@@ -203,6 +207,20 @@ export default function CheckoutClient() {
                     className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                     placeholder="08xxxxxxxxxx"
                     inputMode="tel"
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="customerEmail"
+                    required
+                    defaultValue={initialEmail}
+                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
+                    placeholder="email@contoh.com"
+                    autoComplete="email"
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">

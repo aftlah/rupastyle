@@ -23,11 +23,17 @@ export async function checkoutAction(formData: FormData) {
   const shippingMethodRaw = (formData.get('shippingMethod') as string | null) ?? 'regular'
   const customerName = (formData.get('customerName') as string | null) ?? ''
   const customerPhone = (formData.get('customerPhone') as string | null) ?? ''
+  const customerEmail = (formData.get('customerEmail') as string | null) ?? ''
   const shippingAddress = (formData.get('shippingAddress') as string | null) ?? ''
   const note = (formData.get('note') as string | null) ?? ''
 
-  if (!customerName.trim() || !customerPhone.trim() || !shippingAddress.trim()) {
-    redirect('/checkout?error=Lengkapi data penerima dan alamat pengiriman')
+  if (!customerName.trim() || !customerPhone.trim() || !customerEmail.trim() || !shippingAddress.trim()) {
+    redirect('/checkout?error=Lengkapi data penerima, email, dan alamat pengiriman')
+  }
+
+  const normalizedCustomerEmail = customerEmail.trim()
+  if (!normalizedCustomerEmail.includes('@')) {
+    redirect('/checkout?error=Email tidak valid')
   }
 
   const h = await headers()
@@ -42,6 +48,7 @@ export async function checkoutAction(formData: FormData) {
       shippingAddress,
       customerName,
       customerPhone,
+      customerEmail: normalizedCustomerEmail,
       note,
       origin,
     })

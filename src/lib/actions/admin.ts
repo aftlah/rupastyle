@@ -645,7 +645,7 @@ async function getVisitorAnalytics() {
 
 export async function getAdminStats() {
   await checkAdmin()
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: orders, error: ordersError } = await supabase
     .from('orders')

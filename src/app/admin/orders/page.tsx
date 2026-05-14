@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { formatCurrency } from "@/lib/utils"
 
 type AdminOrderRow = {
@@ -18,7 +18,7 @@ export const metadata = {
 }
 
 export default async function AdminOrdersPage() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: orders, error } = await supabase
     .from("orders")

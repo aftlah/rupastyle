@@ -67,6 +67,7 @@ export async function createOrder(
     shippingAddress: string
     customerName: string
     customerPhone: string
+    customerEmail?: string
     note?: string
     origin?: string
   }
@@ -128,7 +129,7 @@ export async function createOrder(
 
   const orderNumber = generateOrderNumber()
   const customerName = details.customerName?.trim() || (userData.user.email?.split('@')[0] || 'Customer')
-  const customerEmail = userData.user.email || ''
+  const customerEmail = details.customerEmail?.trim() || userData.user.email || ''
   const customerPhone = details.customerPhone?.trim() || ''
   const origin = details.origin?.trim() || ''
   const shippingLabel = getShippingLabel(details.shippingMethod)
