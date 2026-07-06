@@ -17,6 +17,12 @@ export default async function AdminNewProductPage() {
     .select("id, name")
     .order("name")
 
+  const { data: stores } = await supabase
+    .from("stores")
+    .select("id, name")
+    .eq("is_active", true)
+    .order("name")
+
   if (error) throw error
 
   return (
@@ -109,12 +115,36 @@ export default async function AdminNewProductPage() {
 
             <div className="space-y-2">
               <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                Toko
+              </label>
+              <select
+                name="storeId"
+                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
+                defaultValue=""
+              >
+                <option value="">Tanpa Toko</option>
+                {(stores ?? []).map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
                 Status
               </label>
-              <label className="flex items-center gap-3 border-2 border-foreground px-4 h-12 font-black uppercase rounded-xl">
-                <input type="checkbox" name="isActive" defaultChecked className="h-5 w-5" />
-                Active
-              </label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-3 border-2 border-foreground px-4 h-12 font-black uppercase rounded-xl">
+                  <input type="checkbox" name="isActive" defaultChecked className="h-5 w-5" />
+                  Active
+                </label>
+                <label className="flex items-center gap-3 border-2 border-foreground px-4 h-12 font-black uppercase rounded-xl">
+                  <input type="checkbox" name="isFeatured" className="h-5 w-5" />
+                  Produk Pilihan
+                </label>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -137,6 +167,18 @@ export default async function AdminNewProductPage() {
                 className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                 placeholder="Black, White"
               />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                Harga per Ukuran (format: S:150000, M:160000, L:170000)
+              </label>
+              <input
+                name="sizePricing"
+                className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
+                placeholder="S:145000, M:155000, L:165000, XL:175000"
+              />
+              <p className="text-xs text-muted-foreground font-bold">Kosongkan jika semua ukuran harga sama.</p>
             </div>
 
             <div className="space-y-2 md:col-span-2">

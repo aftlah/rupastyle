@@ -1,3 +1,40 @@
+export interface ProductVariants {
+  sizes?: string[]
+  colors?: string[]
+  sizePricing?: Record<string, number>
+  promo?: {
+    price?: number | null
+    percent?: number | null
+    label?: string | null
+  }
+}
+
+export interface Store {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  logo_url: string | null
+  address: string | null
+  phone: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface Broadcast {
+  id: string
+  title: string
+  content: string
+  image_url: string | null
+  link_url: string | null
+  is_active: boolean
+  starts_at: string | null
+  ends_at: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface Product {
   id: string
   name: string
@@ -6,19 +43,14 @@ export interface Product {
   price: number
   stock: number
   category_id: string | null
-  variants: {
-    sizes?: string[]
-    colors?: string[]
-    promo?: {
-      price?: number | null
-      percent?: number | null
-      label?: string | null
-    }
-  }
+  store_id: string | null
+  variants: ProductVariants
   is_active: boolean
+  is_featured: boolean
   created_at: string
   updated_at: string
   category?: Category | null
+  store?: Store | null
   images?: ProductImage[]
 }
 
@@ -77,6 +109,11 @@ export interface Order {
   gross_amount: number
   payment_type: string | null
   shipping_address: string
+  shipping_method: string | null
+  shipping_cost: number
+  tracking_number: string | null
+  shipped_at: string | null
+  delivered_at: string | null
   customer_name: string
   customer_phone: string
   customer_email: string

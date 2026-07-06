@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { createClient } from '@supabase/supabase-js'
+import { mapMidtransTransactionToOrderUpdate } from '@/lib/midtrans'
+import { decrementOrderStock } from '@/lib/inventory'
 
 // Use service role for webhooks
 const supabaseAdmin = createClient(
@@ -32,40 +34,36 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Invalid signature' }, { status: 400 })
     }
 
-    const { transaction_status, order_id, payment_type, transaction_time } = body
+    const { transaction_status, order_id, payment_type } = body
 
-    let newStatus = 'pending'
-
-    switch (transaction_status) {
-      case 'capture':
-      case 'settlement':
-        newStatus = 'paid'
-        break
-      case 'pending':
-        newStatus = 'pending'
-        break
-      case 'deny':
-      case 'cancel':
-      case 'expire':
-        newStatus = 'failed'
-        break
+    const update = mapMidtransTransactionToOrderUpdate(transaction_status, payment_type)
+    if (!update) {
+      return NextResponse.json({ message: 'Ignored status' })
     }
+
+    const { data: existingOrder } = await supabaseAdmin
+      .from('orders')
+      .select('id, payment_status')
+      .eq('midtrans_order_id', order_id)
+      .maybeSingle()
+
+    const wasPaid = existingOrder?.payment_status === 'paid'
 
     const { error } = await supabaseAdmin
       .from('orders')
-      .update({
-        status: newStatus === 'paid' ? 'processing' : newStatus,
-        payment_status: newStatus,
-        payment_type: payment_type,
-      })
+      .update(update)
       .eq('midtrans_order_id', order_id)
 
     if (error) {
-      console.error('Webhook update error:', error)
+      console.error('Webhook update error:', error.message)
       return NextResponse.json({ message: 'Database update failed' }, { status: 500 })
     }
 
-    console.log('Webhook processed', { order_id, transaction_status, mapped_payment_status: newStatus })
+    if (update.payment_status === 'paid' && !wasPaid && existingOrder?.id) {
+      await decrementOrderStock(existingOrder.id)
+    }
+
+    console.log('Webhook processed', { order_id, transaction_status, update })
     return NextResponse.json({ message: 'OK' })
   } catch (error) {
     console.error('Webhook error:', error)

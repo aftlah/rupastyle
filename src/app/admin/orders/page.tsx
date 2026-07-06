@@ -111,8 +111,10 @@ export default async function AdminOrdersPage() {
                 {rows.map((order) => (
                   <tr key={order.id} className="border-b border-foreground/10 hover:bg-primary/5 transition-colors">
                     <td className="py-4 pr-4">
-                      <div className="font-black uppercase">#{order.order_number}</div>
-                      <div className="text-xs text-muted-foreground font-bold">{order.id}</div>
+                      <Link href={`/admin/orders/${order.id}`} className="font-black uppercase hover:text-primary transition-colors">
+                        #{order.order_number}
+                      </Link>
+                      <div className="text-xs text-muted-foreground font-bold">{order.id.slice(0, 8)}...</div>
                     </td>
                     <td className="py-4 pr-4">
                       <div className="font-bold">{order.customer_name}</div>

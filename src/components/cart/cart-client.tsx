@@ -79,7 +79,7 @@ export default function CartClient() {
                 </div>
                 <div className="flex justify-between font-bold">
                   <span className="text-muted-foreground uppercase text-sm">Pengiriman</span>
-                  <span className="text-green-600 uppercase text-sm">Gratis</span>
+                  <span className="text-muted-foreground uppercase text-sm">Dihitung di checkout</span>
                 </div>
                 <div className="border-t-4 border-foreground pt-4 flex justify-between">
                   <span className="font-black uppercase">Total</span>

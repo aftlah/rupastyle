@@ -58,8 +58,8 @@ export async function checkoutAction(formData: FormData) {
     redirectUrl = `/order-success?order_id=${order.id}`
   } catch (error) {
     if (error instanceof Error && error.message === 'NEXT_REDIRECT') throw error
-    console.error('Checkout error:', error)
-    redirect('/checkout?error=Checkout failed')
+    const message = error instanceof Error ? error.message : 'Checkout failed'
+    redirect(`/checkout?error=${encodeURIComponent(message)}`)
   }
 
   if (redirectUrl) {

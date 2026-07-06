@@ -13,9 +13,10 @@ declare global {
 
 interface PaymentButtonProps {
   snapToken: string
+  variant?: 'default' | 'elegant'
 }
 
-export default function PaymentButton({ snapToken }: PaymentButtonProps) {
+export default function PaymentButton({ snapToken, variant = 'default' }: PaymentButtonProps) {
   const [isScriptLoaded, setIsScriptLoaded] = useState(false)
   const [isPaying, setIsPaying] = useState(false)
 
@@ -73,14 +74,23 @@ export default function PaymentButton({ snapToken }: PaymentButtonProps) {
     }
   }
 
+  const buttonClass =
+    variant === 'elegant'
+      ? 'w-full h-12 rounded-xl bg-primary text-white font-bold uppercase tracking-wide text-sm shadow-[0_12px_30px_-12px_rgba(124,58,237,0.55)] hover:bg-primary/90 transition-all'
+      : 'w-full h-14 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl mt-4'
+
   return (
     <Button
       onClick={handlePay}
       isLoading={isPaying}
       disabled={!isScriptLoaded || isPaying}
-      className="w-full h-14 border-4 border-foreground bg-primary text-white font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl mt-4"
+      className={buttonClass}
     >
-      {isScriptLoaded ? '⚡ Bayar Sekarang' : 'Memuat Snap...'}
+      {isScriptLoaded
+        ? variant === 'elegant'
+          ? 'Bayar Sekarang'
+          : '⚡ Bayar Sekarang'
+        : 'Memuat Snap...'}
     </Button>
   )
 }

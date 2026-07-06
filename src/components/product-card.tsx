@@ -50,7 +50,13 @@ export default function ProductCard({ product }: ProductCardProps) {
               <p className="text-xl font-black text-primary">{formatCurrency(pricing.finalPrice)}</p>
             </div>
           ) : (
-            <p className="text-xl font-black text-foreground">{formatCurrency(pricing.finalPrice)}</p>
+            pricing.priceRange.hasRange ? (
+              <p className="text-xl font-black text-foreground">
+                {formatCurrency(pricing.priceRange.min)} – {formatCurrency(pricing.priceRange.max)}
+              </p>
+            ) : (
+              <p className="text-xl font-black text-foreground">{formatCurrency(pricing.finalPrice)}</p>
+            )
           )}
         </div>
       </div>

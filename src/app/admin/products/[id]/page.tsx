@@ -6,7 +6,7 @@ import { ArrowLeft } from "lucide-react"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { updateProductAction } from "@/lib/actions/admin"
 import { FormSubmitButton } from "@/components/form-submit-button"
-import { formatCurrency, getProductPricing } from "@/lib/utils"
+import { formatCurrency, getProductPricing, formatSizePricingInput } from "@/lib/utils"
 
 export const metadata = {
   title: "Edit Product - Admin | RupaStyle",
@@ -20,7 +20,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
   const { id } = await params
   const supabase = createAdminClient()
 
-  const [{ data: product, error: productError }, { data: categories, error: categoriesError }] =
+  const [{ data: product, error: productError }, { data: categories, error: categoriesError }, { data: stores }] =
     await Promise.all([
       supabase
         .from("products")
@@ -28,6 +28,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
         .eq("id", id)
         .single(),
       supabase.from("categories").select("id, name").order("name"),
+      supabase.from("stores").select("id, name").eq("is_active", true).order("name"),
     ])
 
   if (productError) {
@@ -39,6 +40,7 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
 
   const sizes = product.variants?.sizes?.join(", ") ?? ""
   const colors = product.variants?.colors?.join(", ") ?? ""
+  const sizePricing = formatSizePricingInput(product.variants?.sizePricing)
   const images = (product.images ?? []) as Array<{
     id: string
     image_url: string
@@ -164,12 +166,36 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
 
                 <div className="space-y-2">
                   <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                    Toko
+                  </label>
+                  <select
+                    name="storeId"
+                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
+                    defaultValue={product.store_id ?? ""}
+                  >
+                    <option value="">Tanpa Toko</option>
+                    {(stores ?? []).map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
                     Status
                   </label>
-                  <label className="flex items-center gap-3 border-2 border-foreground px-4 h-12 font-black uppercase rounded-xl">
-                    <input type="checkbox" name="isActive" defaultChecked={Boolean(product.is_active)} className="h-5 w-5" />
-                    Active
-                  </label>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-3 border-2 border-foreground px-4 h-12 font-black uppercase rounded-xl">
+                      <input type="checkbox" name="isActive" defaultChecked={Boolean(product.is_active)} className="h-5 w-5" />
+                      Active
+                    </label>
+                    <label className="flex items-center gap-3 border-2 border-foreground px-4 h-12 font-black uppercase rounded-xl">
+                      <input type="checkbox" name="isFeatured" defaultChecked={Boolean(product.is_featured)} className="h-5 w-5" />
+                      Produk Pilihan
+                    </label>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -193,6 +219,18 @@ export default async function AdminEditProductPage({ params }: AdminEditProductP
                     defaultValue={colors}
                     className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
                     placeholder="Black, White"
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                    Harga per Ukuran (format: S:150000, M:160000)
+                  </label>
+                  <input
+                    name="sizePricing"
+                    defaultValue={sizePricing}
+                    className="w-full h-12 px-4 border-2 border-foreground font-bold focus:bg-primary/5 outline-none transition-all rounded-xl"
+                    placeholder="S:145000, M:155000, L:165000, XL:175000"
                   />
                 </div>
 

@@ -1,6 +1,8 @@
 import { createClient } from './supabase/server'
+import { createAdminClient } from './supabase/admin'
 import { getCartWithItems } from './cart'
 import { generateSnapToken } from './midtrans'
+import { validateOrderStock } from './inventory'
 import type { Order, OrderItem, OrderWithItems } from '@/types'
 import { getProductPricing } from './utils'
 
@@ -89,7 +91,7 @@ export async function createOrder(
   const { data: products, error: productsError } = productIds.length
     ? await supabase
         .from('products')
-        .select('id, name, slug, price, variants')
+        .select('id, name, slug, price, variants, stock, is_active')
         .in('id', productIds)
     : { data: [], error: null }
 
@@ -106,7 +108,9 @@ export async function createOrder(
 
   const normalizedItems = items.map((item) => {
     const product = item.productId ? productById.get(item.productId) : null
-    const effectivePrice = product ? getProductPricing(product as any).finalPrice : Number(item.price) || 0
+    const effectivePrice = product
+      ? getProductPricing(product as any, item.size ?? null).finalPrice
+      : Number(item.price) || 0
 
     return {
       ...item,
@@ -115,6 +119,18 @@ export async function createOrder(
       slug: product?.slug ?? item.slug ?? item.productId,
     }
   })
+
+  const stockCheck = await validateOrderStock(
+    normalizedItems.map((item) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+      name: item.name,
+    }))
+  )
+
+  if (!stockCheck.ok) {
+    throw new Error(stockCheck.message)
+  }
 
   const subtotal = normalizedItems.reduce((sum, item) => {
     return sum + (item.price * item.quantity)
@@ -154,6 +170,8 @@ export async function createOrder(
       payment_status: 'pending',
       gross_amount: grossAmount,
       shipping_address: shippingAddressStored,
+      shipping_method: details.shippingMethod,
+      shipping_cost: shippingCost,
       customer_name: customerName,
       customer_email: customerEmail,
       customer_phone: customerPhone,
@@ -208,7 +226,7 @@ export async function createOrder(
   }
 
   if (snapToken) {
-    await supabase
+    await createAdminClient()
       .from('orders')
       .update({
         snap_token: snapToken,

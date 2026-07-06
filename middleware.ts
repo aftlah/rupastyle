@@ -34,15 +34,21 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+  if (authError?.message?.includes('Refresh Token')) {
+    await supabase.auth.signOut()
+  }
+
+  const activeUser = authError?.message?.includes('Refresh Token') ? null : user
 
   // Protect /cart and /checkout routes
-  if ((request.nextUrl.pathname.startsWith('/cart') || request.nextUrl.pathname.startsWith('/checkout')) && !user) {
+  if ((request.nextUrl.pathname.startsWith('/cart') || request.nextUrl.pathname.startsWith('/checkout')) && !activeUser) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
   // If user is logged in and tries to access /login or /register, redirect to home
-  if ((request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/register') && user) {
+  if ((request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/register') && activeUser) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 

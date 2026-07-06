@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { LayoutGrid, LogOut } from 'lucide-react'
+import { LayoutGrid, LogOut, Package } from 'lucide-react'
 
 type UserAvatarDropdownProps = {
   name: string
@@ -153,12 +153,25 @@ export function UserAvatarDropdown({ name, email, isAdmin, logoutAction }: UserA
         <div className="h-px bg-foreground/10" />
 
         <div className="p-3">
+          <Link
+            href="/orders"
+            role="menuitem"
+            ref={(el) => {
+              itemRefs.current[0] = el
+            }}
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 rounded-xl px-4 py-3 font-black uppercase text-sm text-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+          >
+            <Package className="h-5 w-5" />
+            Pesanan Saya
+          </Link>
+
           {isAdmin ? (
             <Link
               href="/admin"
               role="menuitem"
               ref={(el) => {
-                itemRefs.current[0] = el
+                itemRefs.current[1] = el
               }}
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 rounded-xl px-4 py-3 font-black uppercase text-sm text-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
@@ -168,12 +181,12 @@ export function UserAvatarDropdown({ name, email, isAdmin, logoutAction }: UserA
             </Link>
           ) : null}
 
-          <form action={logoutAction} className={isAdmin ? 'mt-1' : undefined}>
+          <form action={logoutAction} className="mt-1">
             <button
               type="submit"
               role="menuitem"
               ref={(el) => {
-                itemRefs.current[isAdmin ? 1 : 0] = el
+                itemRefs.current[isAdmin ? 2 : 1] = el
               }}
               onClick={() => setOpen(false)}
               className="w-full flex items-center gap-3 rounded-xl px-4 py-3 font-black uppercase text-sm text-red-600 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-200"

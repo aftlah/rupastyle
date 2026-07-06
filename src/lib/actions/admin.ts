@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '../supabase/server'
 import { redirect } from 'next/navigation'
 import { createAdminClient, ensureProductImagesBucket } from '@/lib/supabase/admin'
+import { parseSizePricingInput } from '@/lib/utils'
 
 async function checkAdmin() {
   const supabase = await createClient()
@@ -32,9 +33,13 @@ export async function upsertProduct(formData: FormData) {
   const price = parseFloat(formData.get('price') as string)
   const stock = parseInt(formData.get('stock') as string)
   const categoryId = (formData.get('categoryId') as string) || null
+  const storeId = (formData.get('storeId') as string) || null
   const isActive = formData.get('isActive') === 'on'
+  const isFeatured = formData.get('isFeatured') === 'on'
   const sizes = formData.get('sizes')?.toString().split(',').map(s => s.trim()).filter(Boolean) || []
   const colors = formData.get('colors')?.toString().split(',').map(c => c.trim()).filter(Boolean) || []
+  const sizePricingRaw = (formData.get('sizePricing') as string | null) ?? ''
+  const sizePricing = parseSizePricingInput(sizePricingRaw)
   const imageFile = formData.get('image') as File | null
   let existingPromo: { price?: number | null; percent?: number | null; label?: string | null } | undefined
 
@@ -56,8 +61,12 @@ export async function upsertProduct(formData: FormData) {
     price,
     stock,
     category_id: categoryId,
+    store_id: storeId,
     is_active: isActive,
-    variants: existingPromo ? { sizes, colors, promo: existingPromo } : { sizes, colors },
+    is_featured: isFeatured,
+    variants: existingPromo
+      ? { sizes, colors, ...(Object.keys(sizePricing).length > 0 ? { sizePricing } : {}), promo: existingPromo }
+      : { sizes, colors, ...(Object.keys(sizePricing).length > 0 ? { sizePricing } : {}) },
     updated_at: new Date().toISOString(),
   }
 
@@ -117,6 +126,7 @@ export async function upsertProduct(formData: FormData) {
 
   revalidatePath('/admin/products')
   revalidatePath(`/products/${slug}`)
+  revalidatePath('/products')
   revalidatePath('/')
   
   return { success: true, productId }
@@ -498,6 +508,239 @@ export async function setUserPasswordAction(formData: FormData) {
 
   revalidatePath("/admin/users")
   redirect("/admin/users?message=Password%20berhasil%20diubah")
+}
+
+export async function createStoreAction(formData: FormData) {
+  await checkAdmin()
+  const supabase = createAdminClient()
+
+  const name = (formData.get('name') as string) || ''
+  const slug = (formData.get('slug') as string) || ''
+  const description = (formData.get('description') as string) || null
+  const address = (formData.get('address') as string) || null
+  const phone = (formData.get('phone') as string) || null
+  const logoUrl = (formData.get('logoUrl') as string) || null
+  const isActive = formData.get('isActive') === 'on'
+
+  if (!name.trim() || !slug.trim()) {
+    redirect('/admin/stores/new?error=Nama%20dan%20slug%20wajib')
+  }
+
+  const { error } = await supabase.from('stores').insert({
+    name: name.trim(),
+    slug: slug.trim(),
+    description: description?.trim() || null,
+    address: address?.trim() || null,
+    phone: phone?.trim() || null,
+    logo_url: logoUrl?.trim() || null,
+    is_active: isActive,
+  })
+
+  if (error) {
+    redirect(`/admin/stores/new?error=${encodeURIComponent(error.message)}`)
+  }
+
+  revalidatePath('/admin/stores')
+  revalidatePath('/products')
+  redirect('/admin/stores?message=Toko%20berhasil%20ditambahkan')
+}
+
+export async function updateStoreAction(formData: FormData) {
+  await checkAdmin()
+  const supabase = createAdminClient()
+
+  const id = (formData.get('id') as string) || ''
+  const name = (formData.get('name') as string) || ''
+  const slug = (formData.get('slug') as string) || ''
+  const description = (formData.get('description') as string) || null
+  const address = (formData.get('address') as string) || null
+  const phone = (formData.get('phone') as string) || null
+  const logoUrl = (formData.get('logoUrl') as string) || null
+  const isActive = formData.get('isActive') === 'on'
+
+  if (!id.trim()) {
+    redirect('/admin/stores?error=Store%20ID%20tidak%20valid')
+  }
+
+  const { error } = await supabase
+    .from('stores')
+    .update({
+      name: name.trim(),
+      slug: slug.trim(),
+      description: description?.trim() || null,
+      address: address?.trim() || null,
+      phone: phone?.trim() || null,
+      logo_url: logoUrl?.trim() || null,
+      is_active: isActive,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+
+  if (error) {
+    redirect(`/admin/stores/${encodeURIComponent(id)}?error=${encodeURIComponent(error.message)}`)
+  }
+
+  revalidatePath('/admin/stores')
+  revalidatePath('/products')
+  redirect('/admin/stores?message=Toko%20berhasil%20diupdate')
+}
+
+export async function deleteStoreAction(formData: FormData) {
+  await checkAdmin()
+  const supabase = createAdminClient()
+
+  const storeId = (formData.get('storeId') as string | null) ?? ''
+  if (!storeId.trim()) {
+    redirect('/admin/stores?error=Store%20ID%20tidak%20valid')
+  }
+
+  const { data: products } = await supabase
+    .from('products')
+    .select('id')
+    .eq('store_id', storeId)
+    .limit(1)
+
+  if ((products?.length ?? 0) > 0) {
+    redirect('/admin/stores?error=Toko%20masih%20punya%20produk.%20Pindahkan%20produk%20dulu.')
+  }
+
+  const { error } = await supabase.from('stores').delete().eq('id', storeId)
+  if (error) {
+    redirect(`/admin/stores?error=${encodeURIComponent(error.message)}`)
+  }
+
+  revalidatePath('/admin/stores')
+  redirect('/admin/stores?message=Toko%20berhasil%20dihapus')
+}
+
+async function resolveBroadcastLinkFromForm(formData: FormData) {
+  const productSlug = (formData.get('productSlug') as string | null)?.trim() ?? ''
+  if (productSlug) {
+    return `/products/${productSlug}`
+  }
+  return null
+}
+
+export async function createBroadcastAction(formData: FormData) {
+  await checkAdmin()
+  const supabase = createAdminClient()
+
+  const title = (formData.get('title') as string) || ''
+  const content = (formData.get('content') as string) || ''
+  const linkUrl = await resolveBroadcastLinkFromForm(formData)
+  const imageUrl = (formData.get('imageUrl') as string) || null
+  const isActive = formData.get('isActive') === 'on'
+
+  if (!title.trim() || !content.trim()) {
+    redirect('/admin/broadcasts/new?error=Judul%20dan%20konten%20wajib')
+  }
+
+  const { error } = await supabase.from('broadcasts').insert({
+    title: title.trim(),
+    content: content.trim(),
+    link_url: linkUrl?.trim() || null,
+    image_url: imageUrl?.trim() || null,
+    is_active: isActive,
+  })
+
+  if (error) {
+    redirect(`/admin/broadcasts/new?error=${encodeURIComponent(error.message)}`)
+  }
+
+  revalidatePath('/admin/broadcasts')
+  revalidatePath('/')
+  redirect('/admin/broadcasts?message=Siaran%20berhasil%20ditambahkan')
+}
+
+export async function updateBroadcastAction(formData: FormData) {
+  await checkAdmin()
+  const supabase = createAdminClient()
+
+  const id = (formData.get('id') as string) || ''
+  const title = (formData.get('title') as string) || ''
+  const content = (formData.get('content') as string) || ''
+  const linkUrl = await resolveBroadcastLinkFromForm(formData)
+  const imageUrl = (formData.get('imageUrl') as string) || null
+  const isActive = formData.get('isActive') === 'on'
+
+  if (!id.trim()) {
+    redirect('/admin/broadcasts?error=Broadcast%20ID%20tidak%20valid')
+  }
+
+  const { error } = await supabase
+    .from('broadcasts')
+    .update({
+      title: title.trim(),
+      content: content.trim(),
+      link_url: linkUrl?.trim() || null,
+      image_url: imageUrl?.trim() || null,
+      is_active: isActive,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+
+  if (error) {
+    redirect(`/admin/broadcasts/${encodeURIComponent(id)}?error=${encodeURIComponent(error.message)}`)
+  }
+
+  revalidatePath('/admin/broadcasts')
+  revalidatePath('/')
+  redirect('/admin/broadcasts?message=Siaran%20berhasil%20diupdate')
+}
+
+export async function deleteBroadcastAction(formData: FormData) {
+  await checkAdmin()
+  const supabase = createAdminClient()
+
+  const broadcastId = (formData.get('broadcastId') as string | null) ?? ''
+  if (!broadcastId.trim()) {
+    redirect('/admin/broadcasts?error=Broadcast%20ID%20tidak%20valid')
+  }
+
+  const { error } = await supabase.from('broadcasts').delete().eq('id', broadcastId)
+  if (error) {
+    redirect(`/admin/broadcasts?error=${encodeURIComponent(error.message)}`)
+  }
+
+  revalidatePath('/admin/broadcasts')
+  revalidatePath('/')
+  redirect('/admin/broadcasts?message=Siaran%20berhasil%20dihapus')
+}
+
+export async function updateOrderShippingAction(formData: FormData) {
+  await checkAdmin()
+  const supabase = createAdminClient()
+
+  const orderId = (formData.get('orderId') as string | null) ?? ''
+  const status = (formData.get('status') as string | null) ?? ''
+  const trackingNumber = ((formData.get('trackingNumber') as string | null) ?? '').trim()
+
+  if (!orderId.trim()) {
+    redirect('/admin/orders?error=Order%20ID%20tidak%20valid')
+  }
+
+  const updateData: Record<string, string | null> = {
+    status: status.trim() || 'processing',
+    tracking_number: trackingNumber || null,
+    updated_at: new Date().toISOString(),
+  }
+
+  if (status === 'shipped') {
+    updateData.shipped_at = new Date().toISOString()
+  }
+  if (status === 'delivered' || status === 'completed') {
+    updateData.delivered_at = new Date().toISOString()
+  }
+
+  const { error } = await supabase.from('orders').update(updateData).eq('id', orderId)
+  if (error) {
+    redirect(`/admin/orders/${encodeURIComponent(orderId)}?error=${encodeURIComponent(error.message)}`)
+  }
+
+  revalidatePath('/admin/orders')
+  revalidatePath(`/admin/orders/${orderId}`)
+  revalidatePath('/orders')
+  redirect(`/admin/orders/${encodeURIComponent(orderId)}?message=Pengiriman%20berhasil%20diupdate`)
 }
 
 function formatPct(value: number) {

@@ -1,13 +1,14 @@
-import Link from "next/link"
 import { notFound } from "next/navigation"
 import { headers } from "next/headers"
 import { getOrderById } from "@/lib/checkout"
-import { generateSnapToken, getMidtransTransactionStatus } from "@/lib/midtrans"
-import { createClient } from "@/lib/supabase/server"
+import {
+  getMidtransTransactionStatus,
+  mapMidtransTransactionToOrderUpdate,
+  resolveSnapTokenForOrder,
+} from "@/lib/midtrans"
 import { createAdminClient } from "@/lib/supabase/admin"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import PaymentButton from "@/components/checkout/payment-button"
+import { decrementOrderStock } from "@/lib/inventory"
+import OrderSuccessCard from "@/components/checkout/order-success-card"
 
 interface OrderSuccessPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -39,47 +40,42 @@ export default async function OrderSuccessPage({ searchParams }: OrderSuccessPag
     try {
       const midtransOrderId = order.midtrans_order_id ?? order.order_number
       const status = await getMidtransTransactionStatus(midtransOrderId)
-      const txStatus = (status.transaction_status ?? "").toLowerCase()
 
-      let nextPaymentStatus: string | null = null
-      let nextOrderStatus: string | null = null
+      if (status?.transaction_status) {
+        const update = mapMidtransTransactionToOrderUpdate(
+          status.transaction_status,
+          status.payment_type ?? order.payment_type
+        )
 
-      if (txStatus === "capture" || txStatus === "settlement") {
-        nextPaymentStatus = "paid"
-        nextOrderStatus = "processing"
-      } else if (txStatus === "deny" || txStatus === "cancel" || txStatus === "expire" || txStatus === "failure") {
-        nextPaymentStatus = "failed"
-        nextOrderStatus = "failed"
-      } else if (txStatus === "pending") {
-        nextPaymentStatus = "pending"
-        nextOrderStatus = "pending"
-      }
-
-      if (
-        (nextPaymentStatus && nextPaymentStatus !== currentPaymentStatus) ||
-        (nextOrderStatus && nextOrderStatus !== currentOrderStatus)
-      ) {
-        const update: Record<string, any> = {
-          payment_status: nextPaymentStatus ?? currentPaymentStatus,
-          status: nextOrderStatus ?? currentOrderStatus,
-          payment_type: status.payment_type ?? order.payment_type ?? null,
+        if (
+          update &&
+          ((update.payment_status !== currentPaymentStatus) || (update.status !== currentOrderStatus))
+        ) {
+          const { error } = await admin.from("orders").update(update).eq("id", order.id)
+          if (error) {
+            console.warn("Midtrans status sync skipped:", error.message)
+          } else {
+            currentPaymentStatus = update.payment_status
+            currentOrderStatus = update.status
+            if (update.payment_status === "paid") {
+              await decrementOrderStock(order.id)
+            }
+          }
         }
-        const { error } = await admin.from("orders").update(update).eq("id", order.id)
-        if (error) throw error
-        currentPaymentStatus = update.payment_status
-        currentOrderStatus = update.status
       }
     } catch (error) {
-      console.error("Midtrans status sync error:", error)
+      const message = error instanceof Error ? error.message : "Unknown sync error"
+      console.warn("Midtrans status sync skipped:", message)
     }
   }
 
-  const isPaid = currentPaymentStatus === "paid"
+  let isPaid = currentPaymentStatus === "paid"
   let snapToken = order.snap_token
   let paymentErrorMessage: string | null = null
+  const isFailed = currentPaymentStatus === "failed"
 
-  if (!isPaid && currentPaymentStatus === "failed") {
-    paymentErrorMessage = "Pembayaran gagal/expire. Silakan buat pesanan baru."
+  if (!isPaid && isFailed) {
+    paymentErrorMessage = "Pembayaran gagal atau kedaluwarsa. Silakan buat pesanan baru."
   } else if (!isPaid && !snapToken) {
     try {
       const h = await headers()
@@ -88,31 +84,35 @@ export default async function OrderSuccessPage({ searchParams }: OrderSuccessPag
         `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}`
       const finishUrl = `${origin}/order-success?order_id=${encodeURIComponent(order.id)}`
 
-      const midtransResponse = await generateSnapToken({
+      const midtransResponse = await resolveSnapTokenForOrder({
         orderId: order.midtrans_order_id ?? order.order_number,
         grossAmount: order.gross_amount,
         customerName: order.customer_name ?? undefined,
         customerEmail: order.customer_email,
         customerPhone: order.customer_phone ?? undefined,
         finishUrl,
+        existingSnapToken: order.snap_token,
+        existingRedirectUrl: order.snap_redirect_url,
       })
 
       snapToken = midtransResponse.token
-      const supabase = await createClient()
-      await supabase
+      await admin
         .from("orders")
         .update({
+          midtrans_order_id: midtransResponse.midtransOrderId,
           snap_token: midtransResponse.token,
           snap_redirect_url: midtransResponse.redirect_url,
         })
         .eq("id", order.id)
     } catch (error) {
       const message = error instanceof Error ? error.message : "Gagal membuat token pembayaran"
-      console.error("Midtrans token error:", error)
-      if (message.toLowerCase().includes("midtrans_server_key")) {
+      if (message === "ORDER_ALREADY_PAID") {
+        currentPaymentStatus = "paid"
+        isPaid = true
+      } else if (message.toLowerCase().includes("midtrans_server_key")) {
         paymentErrorMessage = "Konfigurasi Midtrans belum lengkap (Server Key belum diset)."
       } else if (message.toLowerCase().includes("midtrans api error: 401") || message.toLowerCase().includes("midtrans api error: 403")) {
-        paymentErrorMessage = "Midtrans menolak request (401/403). Biasanya karena Server Key salah atau bukan Sandbox. Update key dan restart server."
+        paymentErrorMessage = "Midtrans menolak request (401/403). Biasanya karena Server Key salah atau bukan Sandbox."
       } else {
         paymentErrorMessage = "Gagal membuat token pembayaran. Silakan coba lagi."
       }
@@ -120,73 +120,16 @@ export default async function OrderSuccessPage({ searchParams }: OrderSuccessPag
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-      <div className="flex justify-center">
-        <Card className="w-full max-w-lg border-4 border-foreground rounded-xl shadow-[16px_16px_0_0_rgba(0,0,0,1)] bg-white overflow-hidden">
-          <CardHeader className="bg-green-400 border-b-4 border-foreground py-10">
-            <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-xl border-4 border-foreground bg-white shadow-[6px_6px_0_0_rgba(0,0,0,1)]">
-              <svg
-                className="h-12 w-12 text-foreground"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={3}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-            <CardTitle className="text-4xl font-black uppercase tracking-tighter text-center">Pesanan Berhasil!</CardTitle>
-          </CardHeader>
-          <CardContent className="p-10 space-y-8">
-            <p className="text-lg font-bold text-center leading-tight">
-              {isPaid ? (
-                <>
-                  Terima kasih telah berbelanja di RupaStyle. <br />
-                  Pembayaran sudah kami terima.
-                </>
-              ) : (
-                <>
-                  YEAY! Terima kasih telah berbelanja di RupaStyle. <br />
-                  Satu langkah lagi, silakan selesaikan pembayaran Anda.
-                </>
-              )}
-            </p>
-            
-            <div className="space-y-4 border-4 border-foreground p-6 bg-secondary shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] rounded-xl">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Order Number</p>
-                <p className="font-black text-xl uppercase italic">{order.order_number}</p>
-              </div>
-              <div className="pt-4 border-t-2 border-foreground/10">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Total Pembayaran</p>
-                <p className="font-black text-3xl text-primary drop-shadow-[2px_2px_0_rgba(0,0,0,1)]">
-                  Rp {order.gross_amount.toLocaleString('id-ID')}
-                </p>
-              </div>
-            </div>
-
-            {isPaid ? (
-              <div className="p-4 border-4 border-foreground bg-green-100 text-foreground font-black uppercase text-xs text-center rounded-xl">
-                Pembayaran berhasil.
-              </div>
-            ) : snapToken ? (
-              <PaymentButton snapToken={snapToken} />
-            ) : (
-              <div className="p-4 border-4 border-destructive bg-destructive/10 text-destructive font-black uppercase text-xs text-center rounded-xl">
-                {paymentErrorMessage ?? "Token pembayaran tidak tersedia. Silakan hubungi admin."}
-              </div>
-            )}
-          </CardContent>
-          <CardFooter className="p-10 pt-0 flex flex-col gap-4">
-            <Button asChild variant="outline" className="w-full h-14 border-4 border-foreground bg-white text-foreground font-black uppercase text-lg shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all rounded-xl">
-              <Link href="/products">Lanjut Belanja</Link>
-            </Button>
-          </CardFooter>
-        </Card>
+    <div className="min-h-[calc(100vh-6rem)] bg-gradient-to-b from-muted/40 via-background to-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 flex justify-center items-center">
+        <OrderSuccessCard
+          orderNumber={order.order_number}
+          grossAmount={order.gross_amount}
+          isPaid={isPaid}
+          isFailed={isFailed && !snapToken}
+          snapToken={snapToken}
+          paymentErrorMessage={paymentErrorMessage}
+        />
       </div>
     </div>
   )

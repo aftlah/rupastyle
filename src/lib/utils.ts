@@ -14,8 +14,78 @@ export function formatCurrency(amount: number) {
   }).format(amount)
 }
 
-export function getProductPricing(product: Pick<Product, "price" | "variants">) {
-  const basePrice = Number(product.price) || 0
+export function getBasePriceForSize(
+  product: Pick<Product, "price" | "variants">,
+  selectedSize?: string | null
+) {
+  const sizePricing = product.variants?.sizePricing
+  const defaultPrice = Number(product.price) || 0
+
+  if (selectedSize && sizePricing?.[selectedSize] != null) {
+    return Number(sizePricing[selectedSize]) || defaultPrice
+  }
+
+  if (sizePricing && Object.keys(sizePricing).length > 0) {
+    const prices = Object.values(sizePricing)
+      .map((value) => Number(value))
+      .filter((value) => Number.isFinite(value) && value > 0)
+    if (prices.length > 0) {
+      return Math.min(...prices)
+    }
+  }
+
+  return defaultPrice
+}
+
+export function getProductPriceRange(product: Pick<Product, "price" | "variants">) {
+  const sizePricing = product.variants?.sizePricing
+  const defaultPrice = Number(product.price) || 0
+
+  if (!sizePricing || Object.keys(sizePricing).length === 0) {
+    return { min: defaultPrice, max: defaultPrice, hasRange: false }
+  }
+
+  const prices = Object.values(sizePricing)
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value) && value > 0)
+
+  if (prices.length === 0) {
+    return { min: defaultPrice, max: defaultPrice, hasRange: false }
+  }
+
+  const min = Math.min(...prices)
+  const max = Math.max(...prices)
+  return { min, max, hasRange: min !== max }
+}
+
+export function parseSizePricingInput(raw: string) {
+  const sizePricing: Record<string, number> = {}
+
+  for (const part of raw.split(",")) {
+    const trimmed = part.trim()
+    if (!trimmed) continue
+
+    const [size, priceRaw] = trimmed.split(":").map((value) => value.trim())
+    const price = Number(priceRaw)
+    if (!size || !Number.isFinite(price) || price <= 0) continue
+    sizePricing[size] = price
+  }
+
+  return sizePricing
+}
+
+export function formatSizePricingInput(sizePricing?: Record<string, number>) {
+  if (!sizePricing) return ""
+  return Object.entries(sizePricing)
+    .map(([size, price]) => `${size}:${price}`)
+    .join(", ")
+}
+
+export function getProductPricing(
+  product: Pick<Product, "price" | "variants">,
+  selectedSize?: string | null
+) {
+  const basePrice = getBasePriceForSize(product, selectedSize)
   const rawPromoPrice = Number(product.variants?.promo?.price)
   const rawPromoPercent = Number(product.variants?.promo?.percent)
   const promoLabel = product.variants?.promo?.label?.trim() || null
@@ -35,6 +105,7 @@ export function getProductPricing(product: Pick<Product, "price" | "variants">) 
   const finalPrice = promoPrice ?? basePrice
   const discountPercent =
     hasPromo && basePrice > 0 ? Math.round(((basePrice - finalPrice) / basePrice) * 100) : 0
+  const priceRange = getProductPriceRange(product)
 
   return {
     basePrice,
@@ -44,5 +115,6 @@ export function getProductPricing(product: Pick<Product, "price" | "variants">) 
     promoLabel,
     hasPromo,
     discountPercent,
+    priceRange,
   }
 }

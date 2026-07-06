@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { getProducts } from "@/lib/products";
+import { getProducts, getFeaturedProducts } from "@/lib/products";
+import { getActiveBroadcasts } from "@/lib/broadcasts";
 import ProductCard from "@/components/product-card";
+import BroadcastBanner from "@/components/broadcast-banner";
 import { getProductPricing } from "@/lib/utils";
 
 export const metadata = {
@@ -12,11 +14,14 @@ export const revalidate = 60;
 
 export default async function Home() {
   const products = await getProducts();
+  const featuredProducts = await getFeaturedProducts();
+  const broadcasts = await getActiveBroadcasts();
   const latestProducts = products.slice(0, 8);
   const promoProducts = products.filter((product) => getProductPricing(product).hasPromo).slice(0, 4);
 
   return (
     <div className="flex flex-col min-h-screen">
+      <BroadcastBanner broadcasts={broadcasts} />
       {/* Hero Section */}
       <section className="bg-background border-b-2 border-foreground flex flex-col items-center justify-center min-h-[80vh] w-full overflow-hidden">
         <div className="max-w-7xl mx-auto w-full px-4 py-24 relative flex flex-col items-center justify-center h-full">
@@ -88,6 +93,31 @@ export default async function Home() {
           </Link>
         </div>
       </section>
+
+      {featuredProducts.length > 0 && (
+        <section className="py-20 px-4 max-w-7xl mx-auto w-full">
+          <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-10 border-b border-border/60 pb-6 gap-4">
+            <div className="text-center md:text-left">
+              <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-primary">Produk Pilihan</h2>
+              <p className="text-muted-foreground mt-2">Rekomendasi terbaik yang wajib kamu cek.</p>
+            </div>
+            <Link href="/products" className="font-bold uppercase text-sm border border-border px-6 py-2 rounded-xl hover:bg-foreground hover:text-background transition-colors">
+              Lihat Semua &rarr;
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12">
+            {featuredProducts.slice(0, 4).map((product) => (
+              <div key={product.id} className="relative">
+                <div className="absolute -top-3 -left-3 z-10 bg-primary text-white text-[10px] font-black uppercase px-3 py-1 border-2 border-foreground shadow-sm rounded-xl">
+                  Pilihan
+                </div>
+                <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="py-20 px-4 max-w-7xl mx-auto w-full">
         <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-10 border-b border-border/60 pb-6 gap-4">
