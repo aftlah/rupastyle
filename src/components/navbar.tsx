@@ -40,9 +40,6 @@ export default async function Navbar() {
               <Link href="/products" className="text-lg font-black uppercase hover:text-primary transition-colors">
                 Produk
               </Link>
-              <Link href="/outfit-builder" className="text-lg font-black uppercase hover:text-primary transition-colors">
-                Outfit Builder
-              </Link>
               <Link href="/stores" className="text-lg font-black uppercase hover:text-primary transition-colors">
                 Toko
               </Link>

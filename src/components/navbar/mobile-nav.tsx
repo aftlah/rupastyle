@@ -15,7 +15,6 @@ export default function MobileNav({ isLoggedIn }: MobileNavProps) {
   const links = [
     { href: '/', label: 'Home' },
     { href: '/products', label: 'Produk' },
-    { href: '/outfit-builder', label: 'Outfit Builder' },
     { href: '/stores', label: 'Toko' },
   ]
 

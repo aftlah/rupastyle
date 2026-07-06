@@ -233,10 +233,3 @@ export async function getProductsForBroadcastSelect() {
 
   return data as Pick<Product, 'id' | 'name' | 'slug'>[]
 }
-
-export async function getOutfitBuilderProducts() {
-  const products = await getProducts()
-  const tops = products.filter((p) => p.category?.slug === 'atasan')
-  const bottoms = products.filter((p) => p.category?.slug === 'bawahan')
-  return { tops, bottoms }
-}

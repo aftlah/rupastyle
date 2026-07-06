@@ -27,31 +27,6 @@ export async function addToCartAction(formData: FormData) {
   }
 }
 
-export async function addOutfitToCartAction(formData: FormData) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/login')
-  }
-
-  const topId = formData.get('topId') as string
-  const bottomId = formData.get('bottomId') as string
-  
-  if (!topId || !bottomId) return
-
-  const bundleId = `outfit-${Date.now()}`
-
-  try {
-    await addToCart(user.id, { productId: topId, quantity: 1, bundleId })
-    await addToCart(user.id, { productId: bottomId, quantity: 1, bundleId })
-    revalidatePath('/cart')
-    redirect('/cart')
-  } catch (error) {
-    console.error('Error adding outfit to cart:', error)
-  }
-}
-
 export async function updateCartItemAction(formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
